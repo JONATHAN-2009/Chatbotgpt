@@ -74,7 +74,7 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
   }, [activeConversation?.messages]);
 
   return (
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto p-4">
             <div className="max-w-3xl mx-auto space-y-8">
                 {activeConversation?.messages.map((message) => (
@@ -246,7 +246,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                         <NewLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
-                    <div className="w-full max-w-3xl p-4">
+                    <div className="w-full max-w-5xl p-4">
                       <ChatInput
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
@@ -265,7 +265,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#F9F9F9] text-foreground">
+    <div className="flex h-screen bg-[#F9F9F9] text-foreground overflow-hidden">
       <Sidebar/>
       <div className="flex-1 flex flex-col">
         <ChatArea
