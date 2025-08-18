@@ -205,34 +205,6 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       }
       
       const finalAssistantMessage: Message = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
-
-      try {
-        const enhanceRes = await fetch('/api/chat/enhance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
-        });
-
-        if (enhanceRes.ok) {
-          const enhancedData = await enhanceRes.json();
-          finalAssistantMessage.content = enhancedData.enhancedResponse;
-          finalAssistantMessage.url = enhancedData.suggestedUrl;
-        } else {
-          const errorData = await enhanceRes.json();
-          console.error("Failed to enhance response", errorData.error);
-          toast({
-            variant: "destructive",
-            title: "Failed to enhance response",
-            description: errorData.error,
-          });
-        }
-      } catch (error) {
-         toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: `Failed to enhance response: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        });
-      }
       
       setConversations(prev =>
         prev.map(c =>
@@ -323,5 +295,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
+
+    
 
     
