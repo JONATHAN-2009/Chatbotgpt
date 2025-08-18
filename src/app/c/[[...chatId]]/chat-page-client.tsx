@@ -224,6 +224,32 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
             : c
         )
       );
+
+      // Enhance the response
+      try {
+        const enhanceRes = await fetch('/api/chat/enhance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
+        });
+        if (enhanceRes.ok) {
+            const enhancedData = await enhanceRes.json();
+            const enhancedMessage: Message = { 
+                ...finalAssistantMessage, 
+                content: enhancedData.enhancedResponse,
+                url: enhancedData.suggestedUrl
+            };
+            setConversations(prev =>
+                prev.map(c =>
+                    c.id === activeConversationId
+                        ? { ...c, messages: c.messages.map(m => m.id === finalAssistantMessage.id ? enhancedMessage : m) }
+                        : c
+                )
+            );
+        }
+      } catch (enhanceError) {
+        console.error("Could not enhance response", enhanceError);
+      }
       
     } catch (error) {
       toast({
