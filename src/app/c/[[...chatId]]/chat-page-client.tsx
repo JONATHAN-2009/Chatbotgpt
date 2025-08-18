@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -30,7 +29,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4">
              <div className="relative w-full bg-white rounded-xl shadow-lg p-1 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <div className="flex items-center">
@@ -361,15 +360,15 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     </Button>
                   </div>
                 </header>
-                <main className="flex-1 flex flex-col items-center justify-end pb-8">
+                <main className="flex-1 flex flex-col items-center justify-center">
                   <div className="flex flex-col items-center justify-center text-center">
                       <GrokLogo className="w-[50px] h-[50px] text-black" />
                       <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
                   </div>
-                </main>
-                 <footer className="p-4 bg-transparent">
+                   <div className="w-full mt-auto">
                     <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                 </footer>
+                 </div>
+                </main>
             </div>
         </div>
     );
@@ -401,3 +400,5 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
+
+    
