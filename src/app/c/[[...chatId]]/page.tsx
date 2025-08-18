@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,23 +26,17 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent() {
+function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const chatId = Array.isArray(params.chatId) ? params.chatId[0] : params.chatId;
-
+  
   const { toast } = useToast();
   const { isMobile, setOpenMobile } = useSidebar();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(initialChatId ?? null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
-
-  const activeConversation = React.useMemo(() => {
-    return conversations.find(c => c.id === activeConversationId) ?? null;
-  }, [conversations, activeConversationId]);
 
   const handleNewChat = React.useCallback(() => {
     const newId = nanoid();
@@ -61,12 +54,20 @@ function ChatPageContent() {
   }, [isMobile, router, setOpenMobile]);
 
   React.useEffect(() => {
-    if (chatId === 'new' || (!chatId && conversations.length === 0)) {
+    if (initialChatId === 'new') {
         handleNewChat();
-    } else {
-        setActiveConversationId(chatId ?? null);
     }
-  }, [chatId, conversations.length, handleNewChat]);
+  }, [initialChatId, handleNewChat]);
+
+  React.useEffect(() => {
+    if (pathname === '/c' && conversations.length === 0) {
+        handleNewChat();
+    }
+  }, [pathname, conversations.length, handleNewChat]);
+  
+  const activeConversation = React.useMemo(() => {
+    return conversations.find(c => c.id === activeConversationId) ?? null;
+  }, [conversations, activeConversationId]);
 
   const formRef = React.useRef<HTMLFormElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
@@ -168,7 +169,6 @@ function ChatPageContent() {
         );
       }
 
-
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -188,6 +188,19 @@ function ChatPageContent() {
         formRef.current?.requestSubmit();
     }, 0);
   }
+
+  React.useEffect(() => {
+    if (activeConversationId && activeConversationId !== pathname.split('/').pop()) {
+      router.push(`/c/${activeConversationId}`);
+    }
+  }, [activeConversationId, pathname, router]);
+
+  React.useEffect(() => {
+    const currentChatId = pathname.split('/').pop();
+    if(currentChatId && conversations.find(c => c.id === currentChatId)) {
+        setActiveConversationId(currentChatId);
+    }
+  }, [pathname, conversations]);
 
   return (
     <div className="flex h-[100svh]">
@@ -280,10 +293,12 @@ function ChatPageContent() {
 }
 
 
-export default function ChatPage() {
+export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+  const chatId = params.chatId?.[0];
+
   return (
     <SidebarProvider>
-      <ChatPageContent />
+      <ChatPageContent chatId={chatId} />
     </SidebarProvider>
   );
 }
