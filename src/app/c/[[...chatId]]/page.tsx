@@ -4,24 +4,30 @@
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Plus, Send, User, MessageSquare, Settings, Mic, Upload, Sparkles } from 'lucide-react';
+import { Bot, Paperclip, Rocket, Send, User, Users, FileText, ChevronDown } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown } from 'lucide-react';
 
+const GrokIcon = () => (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-12">
+        <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM16.63 15.207C16.444 15.392 16.188 15.5 15.923 15.5C15.658 15.5 15.402 15.392 15.216 15.207L12.489 12.485L9.778 15.196C9.592 15.381 9.336 15.489 9.071 15.489C8.806 15.489 8.55 15.381 8.364 15.196C7.993 14.825 7.993 14.225 8.364 13.854L11.075 11.143L8.364 8.432C7.993 8.061 7.993 7.461 8.364 7.09C8.735 6.719 9.335 6.719 9.706 7.09L12.417 9.801L15.216 7.002C15.587 6.631 16.187 6.631 16.558 7.002C16.929 7.373 16.929 7.973 16.558 8.344L13.759 11.143L16.63 13.94C17.001 14.311 17.001 14.836 16.63 15.207Z" fill="currentColor"/>
+    </svg>
+);
+
+
+const SoundWaveIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 10V14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M7 8V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M11 5V19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M15 8V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M19 10V14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
 
 export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
   const chatId = params.chatId?.[0];
@@ -188,117 +194,28 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
       inputRef.current?.focus();
     }
   };
-
-  const onSelectPrompt = (prompt: string) => {
-    setInput(prompt);
-    setTimeout(() => {
-        inputRef.current?.focus();
-        formRef.current?.requestSubmit();
-    }, 0);
-  }
-
-  React.useEffect(() => {
-    if (activeConversationId && activeConversationId !== pathname.split('/').pop()) {
-      router.push(`/c/${activeConversationId}`);
-    }
-  }, [activeConversationId, pathname, router]);
-
-  React.useEffect(() => {
-    const currentChatId = pathname.split('/').pop();
-    if(currentChatId && conversations.find(c => c.id === currentChatId)) {
-        setActiveConversationId(currentChatId);
-    }
-  }, [pathname, conversations]);
-
+  
   const hasMessages = activeConversation && activeConversation.messages.length > 0;
 
-  return (
-    <div className="flex h-[100svh] bg-background text-foreground">
-        <aside className="w-64 flex flex-col p-2 bg-background border-r">
-            <div className="flex-1">
-                <Button variant="ghost" className="w-full justify-start gap-2 mb-4" onClick={handleNewChat}>
-                    <Bot size={20} />
-                    New Chat
-                    <div className="flex-1" />
-                    <MessageSquare size={20} />
-                </Button>
-                <div className="space-y-1">
-                    {conversations.filter(c => c.messages.length > 0).map(c => (
-                        <Button key={c.id} variant={c.id === activeConversationId ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setActiveConversationId(c.id)}>
-                            {c.title}
-                        </Button>
+  if (hasMessages) {
+    return (
+        <div className="flex flex-col h-screen bg-background text-foreground">
+            <main className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-4xl mx-auto space-y-8">
+                    {activeConversation.messages.map(message => (
+                        <ChatMessage key={message.id} message={message} />
                     ))}
                 </div>
-            </div>
-            <div className="p-2">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-start gap-2">
-                            <div className="size-7 rounded-full bg-blue-500 text-white flex items-center justify-center">K</div>
-                            <span className="truncate">User</span>
-                            <div className='flex-1' />
-                            <Settings size={20} />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-60">
-                        <DropdownMenuItem>My plan</DropdownMenuItem>
-                        <DropdownMenuItem>Custom instructions</DropdownMenuItem>
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Log out</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-        </aside>
-
-        <main className="flex-1 flex flex-col h-full overflow-hidden">
-            <header className="flex items-center justify-between p-2 border-b h-16">
-              <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="gap-1">
-                      <h1 className="text-lg font-semibold">ChatGPT</h1>
-                      <ChevronDown size={16} className="text-muted-foreground" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>ChatGPT</DropdownMenuItem>
-                    <DropdownMenuItem>Other Model</DropdownMenuItem>
-                  </DropdownMenuContent>
-              </DropdownMenu>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost">
-                  <Sparkles className="mr-2" size={16} /> Améliorez votre forfait
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <User className="size-6" />
-                </Button>
-              </div>
-            </header>
-
-            <div className={`flex-1 relative ${!hasMessages ? 'flex flex-col' : ''}`}>
-                <ScrollArea className="h-full">
-                    <div className="p-4 md:p-6 max-w-4xl mx-auto">
-                        {hasMessages ? (
-                            <div className="space-y-6">
-                            {activeConversation.messages.map(message => (
-                                <ChatMessage key={message.id} message={message} />
-                            ))}
-                            </div>
-                        ) : (
-                            <EmptyScreen onSelect={onSelectPrompt}/>
-                        )}
-                    </div>
-                </ScrollArea>
-
-                <div className={`w-full p-4 md:p-6 self-end ${!hasMessages ? 'absolute bottom-0' : 'border-t'}`}>
-                    <div className="max-w-4xl mx-auto">
-                      <form ref={formRef} onSubmit={handleSendMessage} className="relative">
+            </main>
+            <footer className="p-4 border-t bg-background">
+                <div className="max-w-4xl mx-auto">
+                    <form ref={formRef} onSubmit={handleSendMessage} className="relative">
                         <Textarea
                           ref={inputRef}
                           value={input}
                           onChange={e => setInput(e.target.value)}
-                          placeholder="Posez une question..."
-                          className="pr-24 pl-12 min-h-[52px] rounded-2xl border-2 border-border focus:border-primary"
+                          placeholder="Que voulez-vous savoir?"
+                          className="w-full bg-background border border-gray-300 rounded-2xl p-4 pr-20"
                           onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -306,27 +223,86 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
                               }
                           }}
                         />
-                         <Button type="button" size="icon" variant="ghost" className="absolute left-3 top-1/2 -translate-y-1/2">
-                          <Plus className="size-5" />
-                        </Button>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                            <Button type="button" size="icon" variant="ghost">
-                                <Mic className="size-5" />
-                            </Button>
-                             <Button type="submit" size="icon" className="bg-primary hover:bg-primary/90 rounded-lg" disabled={isLoading || !input.trim()}>
+                         <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                             <Button type="submit" size="icon" className="bg-foreground hover:bg-foreground/90 rounded-full" disabled={isLoading || !input.trim()}>
                                 <Send className="size-5" />
                             </Button>
                         </div>
                       </form>
-                      <p className='text-xs text-center text-muted-foreground mt-2'>
-                        ChatGPT can make mistakes. Consider checking important information.
-                      </p>
-                    </div>
+                </div>
+            </footer>
+        </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-screen bg-background text-foreground">
+        <header className="p-4 flex justify-end">
+            <Button variant="ghost" className="text-muted-foreground">
+                <Bot className="mr-2 size-4" />
+                Privé
+            </Button>
+        </header>
+        <main className="flex flex-1 flex-col items-center justify-center -mt-20">
+            <div className="text-center mb-8">
+                <GrokIcon />
+                <h1 className="text-4xl font-bold mt-2">Grok</h1>
+            </div>
+            
+            <div className="w-full max-w-2xl px-4">
+                 <div className="relative bg-white rounded-2xl shadow-lg p-4">
+                    <form ref={formRef} onSubmit={handleSendMessage}>
+                        <Textarea
+                            ref={inputRef}
+                            value={input}
+                            onChange={e => setInput(e.target.value)}
+                            placeholder="Que voulez-vous savoir ?"
+                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-lg pr-12 text-black"
+                             onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  formRef.current?.requestSubmit();
+                              }
+                            }}
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                             <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full" disabled={isLoading || !input.trim()}>
+                                <SoundWaveIcon />
+                            </Button>
+                        </div>
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                             <div className="flex items-center gap-4">
+                                <Button variant="ghost" size="sm" className="text-muted-foreground"><Paperclip className="size-4" /></Button>
+                                <Button variant="ghost" size="sm" className="text-muted-foreground">
+                                    <Rocket className="mr-2 size-4" />
+                                    Automatique
+                                    <ChevronDown className="ml-1 size-4" />
+                                </Button>
+                             </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 mt-6">
+                    <Button variant="outline" className="rounded-full bg-white text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="mr-2" viewBox="0 0 16 16">
+                            <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM12.5 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM1.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM10 12.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            <path d="M6 6.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5zm6.5 2.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5zm-6 2.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5z"/>
+                        </svg>
+                        DeepSearch
+                    </Button>
+                    <Button variant="outline" className="rounded-full bg-white text-black">
+                        <FileText className="mr-2 size-4" />
+                        Dernières nouvelles
+                    </Button>
+                    <Button variant="outline" className="rounded-full bg-white text-black">
+                        <Users className="mr-2 size-4" />
+                        Modes
+                        <ChevronDown className="ml-1 size-4" />
+                    </Button>
                 </div>
             </div>
         </main>
     </div>
   );
 }
-
-    
