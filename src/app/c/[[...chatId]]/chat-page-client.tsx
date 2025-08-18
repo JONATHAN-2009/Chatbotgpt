@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Compass, Upload, Star, MoreHorizontal } from 'lucide-react';
+import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Compass, Upload, Star, MoreHorizontal, X } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { nanoid } from 'nanoid';
 import { ChatMessage } from '@/components/chat-message';
@@ -112,39 +112,21 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeConversation?.messages]);
 
-  const hasMessages = activeConversation && activeConversation.messages.length > 0;
-  
-    if (!hasMessages) {
-        return (
-            <main className="flex-1 flex flex-col">
-                <div className="flex-1 flex flex-col items-center justify-center">
-                    <div className="flex flex-col items-center justify-center text-center">
-                        <GrokLogo className="w-[50px] h-[50px] text-black"/>
-                        <h1 className="text-3xl font-bold mt-4">Grok</h1>
-                    </div>
-                </div>
-                <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
-                   <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                </footer>
-            </main>
-        );
-    }
-    
-    return (
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 overflow-y-auto p-4">
-              <div className="max-w-3xl mx-auto space-y-8">
-                  {activeConversation.messages.map((message) => (
-                      <ChatMessage key={message.id} message={message} />
-                  ))}
-                  <div ref={messagesEndRef} />
-              </div>
-          </main>
-          <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
-            <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-          </footer>
-        </div>
-    );
+  return (
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-3xl mx-auto space-y-8">
+                {activeConversation?.messages.map((message) => (
+                    <ChatMessage key={message.id} message={message} />
+                ))}
+                <div ref={messagesEndRef} />
+            </div>
+        </main>
+        <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
+          <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+        </footer>
+      </div>
+  );
 }
 
 export function ChatPageClient({ chatId }: { chatId?: string }) {
@@ -332,21 +314,12 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <header className="p-2 flex justify-end items-center border-b border-gray-200 h-14">
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
-                    <Button variant="outline" size="sm" className="h-8">
-                        <Upload className="mr-2 size-4" />
-                        Partager
-                    </Button>
-                  </div>
-                </header>
-                <main className="flex-1 flex flex-col justify-center items-center">
-                    <div className="flex flex-col items-center justify-center text-center">
-                        <GrokLogo className="w-[50px] h-[50px] text-black" />
-                        <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
+                <main className="flex-1 flex flex-col">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
+                        <Button variant="ghost" size="icon" className="rounded-full bg-black text-white h-12 w-12 hover:bg-black/80">
+                            <X className="size-6"/>
+                        </Button>
+                        <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
                     <div className="w-full mt-auto">
                         <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
@@ -361,7 +334,8 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     <div className="flex h-screen bg-[#F9F9F9] text-foreground">
       <Sidebar/>
       <div className="flex-1 flex flex-col">
-        <header className="p-2 flex justify-end items-center border-b border-gray-200 h-14">
+        <header className="p-2 flex justify-between items-center border-b border-gray-200 h-14">
+            <span className="font-bold px-2">{activeConversation?.title}</span>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
