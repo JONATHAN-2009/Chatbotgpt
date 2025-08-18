@@ -163,7 +163,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     try {
       // Add a system message to enforce language and markdown formatting
       const messagesForApi = [
-          { role: 'system', content: "Valio foana amin'ny fiteny farany nampiasain'ny mpampiasa. Ampiasao foana ny format Markdown, mitovy amin'ny fampiasan'ny ChatGPT, indrindra amin'ny kaody (ohatra, ```python...```)." },
+          { role: 'system', content: "Valio foana amin'ny fiteny farany nampiasain'ny mpampiasa. Ampiasao ny format Markdown rehefa ilaina (ohatra, ho an'ny lisitra na lahatsoratra matavy). Raha mampiditra kaody ianao, dia ataovy anaty ```...``` izany." },
           ...updatedMessages.map(({role, content}) => ({role, content}))
       ];
       
@@ -288,5 +288,3 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
-
-    
