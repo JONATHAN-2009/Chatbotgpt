@@ -1,7 +1,8 @@
+
 'use client';
 import type { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { ExternalLink, RefreshCw, Copy, ThumbsUp, ThumbsDown, MoreHorizontal, SquarePen } from 'lucide-react';
+import { ExternalLink, RefreshCw, Copy, ThumbsUp, ThumbsDown, MoreHorizontal, SquarePen, Upload } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from './ui/button';
@@ -18,36 +19,32 @@ export function ChatMessage({ message }: { message: Message }) {
   const { role, content, url } = message;
   const isUser = role === 'user';
 
-  return (
-    <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : '')}>
-      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2 bg-blue-500 text-white' : 'order-1 bg-black text-white')}>
-        {isUser ? 'You' : <GrokIcon />}
-      </div>
-      <div className={cn('flex-1 pt-0.5 max-w-[80%]', isUser ? 'order-1' : 'order-2')}>
-        <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
-        <div className={cn('p-4 rounded-lg mt-1', isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black')}>
-          <article className="prose prose-sm dark:prose-invert max-w-none break-words text-current">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-          </article>
+  if (isUser) {
+    return (
+        <div className="flex justify-end">
+            <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 max-w-[80%]">
+                <p className="text-black">{content}</p>
+            </div>
         </div>
-        {!isUser && (
-            <div className="mt-2 flex items-center gap-2 text-gray-500">
-                <Button variant="ghost" size="icon" className="h-8 w-8"><RefreshCw className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsUp className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsDown className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
-                <span className="text-xs">1,8s</span>
-            </div>
-        )}
-         {isUser && (
-            <div className="mt-2 flex items-center gap-2 text-gray-500 justify-end">
-                <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
-            </div>
-        )}
+    )
+  }
+
+  return (
+    <div className='flex flex-col items-start gap-4'>
+        <div className="prose prose-sm max-w-none text-black">
+             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+        </div>
+        <div className="flex items-center gap-2 text-gray-500">
+            <Button variant="ghost" size="icon" className="h-8 w-8"><RefreshCw className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><Upload className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsUp className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsDown className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
+            <span className="text-xs">3,1s</span>
+        </div>
         {url && (
-            <div className={cn("mt-2", isUser ? 'text-right' : 'text-left')}>
+            <div className="mt-2 text-left">
                 <Button variant="outline" size="sm" asChild>
                     <Link href={url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 size-4" />
@@ -56,9 +53,6 @@ export function ChatMessage({ message }: { message: Message }) {
                 </Button>
             </div>
         )}
-      </div>
     </div>
   );
 }
-
-    

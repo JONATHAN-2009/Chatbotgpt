@@ -6,17 +6,18 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask, MessageSquare, Compass, Code } from 'lucide-react';
+import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask, MessageSquare, Compass, Code, Upload, Star, MoreHorizontal, ThumbsUp, ThumbsDown, RefreshCw, Copy, BrainCircuit } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { nanoid } from 'nanoid';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from '@/components/chat-message';
 
-const GrokLogo = ({ large = false }: { large?: boolean }) => (
-    <svg width={large ? "60" : "24"} height={large ? "60" : "24"} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
+const GrokLogo = ({ className }: { className?: string }) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
       <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM16.6304 15.2065C16.4449 15.392 16.1884 15.4999 15.9234 15.4999C15.6583 15.4999 15.4018 15.392 15.2163 15.2065L12.4887 12.4846L9.77836 15.1957C9.59286 15.3812 9.33636 15.4891 9.07136 15.4891C8.80636 15.4891 8.54986 15.3812 8.36436 15.1957C7.99336 14.8247 7.99336 14.2247 8.36436 13.8537L11.0754 11.1427L8.36436 8.43164C7.99336 8.06064 7.99336 7.46064 8.36436 7.08964C8.73536 6.71864 9.33536 6.71864 9.70636 7.08964L12.4174 9.80064L15.2163 7.0015C15.5873 6.6305 16.1873 6.6305 16.5583 7.0015C16.9293 7.3725 16.9293 7.9725 16.5583 8.3435L13.7594 11.1427L16.6304 13.9395C17.0014 14.3105 17.0014 14.8355 16.6304 15.2065Z" fill="currentColor"/>
     </svg>
 );
+
 
 const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
     const formRef = React.useRef<HTMLFormElement>(null);
@@ -29,81 +30,86 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-5xl mx-auto flex flex-col items-center px-4">
-             <div className="relative w-full bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
+            <Button variant="outline" className="rounded-full bg-white border-gray-200 text-sm font-normal text-gray-800 px-4 py-2 mb-4 shadow-sm">
+                <BrainCircuit className="mr-2 size-4"/>
+                Réfléchir plus intensément
+                <span className="ml-2 text-gray-400">x</span>
+            </Button>
+             <div className="relative w-full bg-white rounded-2xl shadow-lg p-2 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
-                    <Textarea
-                        value={input}
-                        onChange={e => setInput(e.target.value)}
-                        placeholder="Que voulez-vous savoir ?"
-                        className="bg-transparent border-none focus:ring-0 resize-none w-full text-lg text-black p-0 min-h-[60px]"
-                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              formRef.current?.requestSubmit();
-                          }
-                        }}
-                        rows={1}
-                    />
-                    <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground w-8 h-8"><Paperclip className="size-5" /></Button>
+                    <div className="flex items-center">
+                         <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="text-muted-foreground w-10 h-10"><Paperclip className="size-5" /></Button>
                             <Button variant="ghost" size="sm" className="text-muted-foreground">
                                 <Rocket className="mr-2 size-4" />
                                 Automatique
                                 <ChevronDown className="ml-1 size-4" />
                             </Button>
                         </div>
-                        <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-10 h-10" disabled={isLoading || !input.trim()}>
+                        <Textarea
+                            value={input}
+                            onChange={e => setInput(e.target.value)}
+                            placeholder="Comment Grok peut-il aider ?"
+                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-base text-black p-2 mx-2 min-h-[40px]"
+                             onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  formRef.current?.requestSubmit();
+                              }
+                            }}
+                            rows={1}
+                        />
+                        <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-10 h-10 flex-shrink-0" disabled={isLoading || !input.trim()}>
                           <MicIcon />
                         </Button>
                     </div>
                 </form>
             </div>
-            <div className="flex items-center gap-4 mt-8">
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><Bot className="mr-2 size-4"/>DeepSearch</Button>
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><History className="mr-2 size-4"/>Dernières nouvelles</Button>
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><Users className="mr-2 size-4"/>Modes<ChevronDown className="ml-1 size-4" /></Button>
-            </div>
         </div>
     );
 };
 
-const ChatSidebar = ({ conversations, activeConversationId, handleNewChat }: { conversations: Conversation[], activeConversationId: string | null, handleNewChat: () => void }) => {
-    const router = useRouter();
+const Sidebar = () => {
+    const GrokIconSidebar = () => (
+        <svg width="28" height="28" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M368 256l-50.28 50.28L368 356.57l-50.28 50.28L267.43 356.57l-50.28 50.28L166.86 356.57 116.57 406.85l-50.28-50.28L116.57 306.28l-50.28-50.28L116.57 205.71l-50.28-50.28L116.57 105.14l50.29-50.28L217.14 105.14l50.29-50.28 50.28 50.28L267.43 155.43l50.28-50.29 50.28 50.29-50.28 50.28 50.28 50.29zm-112.57 0l50.28-50.29-50.28-50.28-50.29 50.28zm-50.28 50.28l50.28 50.29 50.29-50.29-50.29-50.28z"/></svg>
+    )
+
+    const BoxIcon = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 16V8C21 7.46957 20.7893 6.96086 20.4142 6.58579C20.0391 6.21071 19.5304 6 19 6H5C4.46957 6 3.96086 6.21071 3.58579 6.58579C3.21071 6.96086 3 7.46957 3 8V16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18H19C19.5304 18 20.0391 17.7893 20.4142 17.4142C20.7893 17.0391 21 16.5304 21 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3.27002 6.9602L12 12.0002L20.73 6.9602" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    )
+
+    const SoundWaveIcon = () => (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M7 8V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M11 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M15 8V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M19 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    )
 
     return (
-        <aside className="w-[280px] bg-white border-r border-gray-200 flex flex-col">
-            <div className="p-4 flex items-center justify-between border-b border-gray-200">
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="rounded-full"><GrokLogo/></Button>
-                    <h2 className="font-semibold">Grok</h2>
-                </div>
-                <Button variant="ghost" size="icon" onClick={handleNewChat}><SquarePen className="size-5" /></Button>
-            </div>
-            <div className="p-4">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-500" />
-                    <input type="text" placeholder="Rechercher" className="w-full bg-gray-100 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500" />
-                </div>
-            </div>
-            <ScrollArea className="flex-1">
-                <div className="p-4 space-y-2">
-                    {conversations.map(convo => (
-                        <Button 
-                            key={convo.id} 
-                            variant={convo.id === activeConversationId ? "secondary" : "ghost"}
-                            className="w-full justify-start"
-                            onClick={() => router.push(`/c/${convo.id}`)}
-                        >
-                            {convo.title}
-                        </Button>
-                    ))}
-                </div>
-            </ScrollArea>
+        <aside className="w-16 bg-gray-50 border-r border-gray-200 flex flex-col items-center py-4 space-y-6 text-gray-600">
+            <GrokIconSidebar />
+            <Button variant="ghost" size="icon" className="text-black"><Search className="size-6" /></Button>
+            <Button variant="ghost" size="icon"><SquarePen className="size-6" /></Button>
+            <Button variant="ghost" size="icon"><SoundWaveIcon /></Button>
+            <Button variant="ghost" size="icon"><BoxIcon /></Button>
+            <Button variant="ghost" size="icon"><Compass className="size-6" /></Button>
+            <Button variant="ghost" size="icon"><History className="size-6" /></Button>
+            <div className="flex-grow" />
+            <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full bg-purple-600 text-white font-bold">C</Button>
+            <Button variant="ghost" size="icon" className="text-gray-400">
+                <ChevronDown className="size-5 rotate-90" />
+                <ChevronDown className="size-5 rotate-90 -ml-2" />
+            </Button>
         </aside>
-    );
-};
+    )
+}
 
 const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -118,7 +124,7 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
         return (
             <main className="flex-1 flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center text-center">
-                    <GrokLogo large />
+                    <GrokLogo className="w-[60px] h-[60px] text-black"/>
                     <h1 className="text-5xl font-bold mt-4">Grok</h1>
                     <div className="mt-12 w-full">
                         <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
@@ -138,13 +144,12 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
                   <div ref={messagesEndRef} />
               </div>
           </main>
-          <footer className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-200">
+          <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
             <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
           </footer>
         </div>
     );
 }
-
 
 export function ChatPageClient({ chatId }: { chatId?: string }) {
   const router = useRouter();
@@ -158,8 +163,13 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   const handleNewChat = React.useCallback(() => {
     const newId = nanoid();
+    if (!conversations.some(c => c.id === newId)) {
+        const newConversation: Conversation = { id: newId, title: `Chat ${newId.substring(0,4)}`, messages: [] };
+        setConversations(prev => [...prev, newConversation]);
+        setActiveConversationId(newId);
+    }
     router.push(`/c/${newId}`);
-  }, [router]);
+  }, [router, conversations]);
 
   React.useEffect(() => {
     // If a chatId is present in the URL, ensure it's the active one.
@@ -174,8 +184,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       // If there's no active chat and no chats at all, create a new one.
       handleNewChat();
     }
-     // Only re-run this effect if the chatId from the URL changes.
-  }, [chatId]);
+  }, [chatId, conversations, activeConversationId, handleNewChat]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -233,24 +242,40 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     break;
                 }
                 try {
-                    const jsonChunk = JSON.parse(jsonStr); 
-                    if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
-                        fullResponse += jsonChunk.choices[0].delta.content;
-                        setConversations(prev =>
-                          prev.map(c =>
-                            c.id === activeConversationId
-                              ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                              : c
-                          )
-                        );
-                    }
+                  const chunk = JSON.parse(jsonStr);
+                  const content = chunk.choices[0]?.delta?.content || '';
+                  if (content) {
+                    fullResponse += content;
+                    setConversations(prev =>
+                      prev.map(c =>
+                        c.id === activeConversationId
+                          ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                          : c
+                      )
+                    );
+                  }
                 } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr, error);
+                    console.error("Failed to parse chunk:", jsonStr);
                 }
             }
         }
       }
       
+      if (buffer.startsWith('data: ')) {
+        const jsonStr = buffer.substring(6);
+        if (jsonStr !== '[DONE]') {
+          try {
+            const chunk = JSON.parse(jsonStr);
+            const content = chunk.choices[0]?.delta?.content || '';
+            if (content) {
+                fullResponse += content;
+            }
+          } catch (e) {
+             console.error("Failed to parse final chunk:", jsonStr);
+          }
+        }
+      }
+
       const finalAssistantMessage: Message = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
 
       try {
@@ -320,31 +345,18 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   const hasMessages = activeConversation && activeConversation.messages.length > 0;
 
   if (!hasMessages) {
-    return (
+     return (
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
-            <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
-                <Button variant="ghost" size="icon"><GrokLogo /></Button>
-                <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
-                <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
-                <Button variant="ghost" size="icon"><MessageSquare className="size-5 text-gray-600" /></Button>
-                <Button variant="ghost" size="icon"><Compass className="size-5 text-gray-600" /></Button>
-                <Button variant="ghost" size="icon"><Code className="size-5 text-gray-600" /></Button>
-                <div className="flex-grow" />
-                <Button variant="ghost" size="icon"><History className="size-5 text-gray-600" /></Button>
-
-            </aside>
+            <Sidebar />
             <div className="flex-1 flex flex-col">
-                <header className="p-4 flex justify-end items-center">
-                    <Button variant="outline" className="rounded-full border-gray-300">
-                        <VenetianMask className="mr-2 size-4 text-gray-600" />
-                        Privé
-                    </Button>
+                <header className="p-4 flex justify-end items-center h-16">
+                    {/* Placeholder for header content */}
                 </header>
                 <main className="flex-1 flex flex-col items-center justify-center">
                   <div className="flex flex-col items-center justify-center text-center">
-                      <GrokLogo large />
-                      <h1 className="text-5xl font-bold mt-4">Grok</h1>
-                      <div className="mt-12 w-full">
+                      <GrokLogo className="w-[60px] h-[60px] text-black" />
+                      <h1 className="text-4xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
+                      <div className="mt-12 w-full px-4">
                           <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
                       </div>
                   </div>
@@ -355,14 +367,19 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 text-foreground">
-      <ChatSidebar conversations={conversations} activeConversationId={activeConversationId} handleNewChat={handleNewChat} />
+    <div className="flex h-screen bg-[#F9F9F9] text-foreground">
+      <Sidebar/>
       <div className="flex-1 flex flex-col">
-        <header className="p-4 flex justify-end items-center border-b border-gray-200">
-          <Button variant="outline" className="rounded-full border-gray-300">
-            <VenetianMask className="mr-2 size-4 text-gray-600" />
-            Privé
-          </Button>
+        <header className="p-4 flex justify-end items-center border-b border-gray-200 h-16">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon"><SquarePen className="size-5" /></Button>
+            <Button variant="ghost" size="icon"><Star className="size-5" /></Button>
+            <Button variant="ghost" size="icon"><MoreHorizontal className="size-5" /></Button>
+            <Button variant="outline" className="rounded-md border-gray-300">
+                <Upload className="mr-2 size-4" />
+                Partager
+            </Button>
+          </div>
         </header>
         <ChatArea
           activeConversation={activeConversation}
@@ -375,7 +392,3 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
-
-    
-
-    
