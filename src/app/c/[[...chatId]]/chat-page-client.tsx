@@ -254,7 +254,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                         <GrokLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
-                    <div className="w-full max-w-5xl p-4">
+                    <div className="w-full max-w-3xl p-4">
                       <ChatInput
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
@@ -276,14 +276,6 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     <div className="flex h-screen bg-[#F9F9F9] text-foreground">
       <Sidebar/>
       <div className="flex-1 flex flex-col">
-        <header className="p-2 flex justify-between items-center border-b border-gray-200 h-14">
-            <span className="font-bold px-2">{activeConversation?.title}</span>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
-          </div>
-        </header>
         <ChatArea
           activeConversation={activeConversation}
           input={input}
