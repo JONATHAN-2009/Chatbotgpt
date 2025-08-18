@@ -220,12 +220,11 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       setConversations(prev =>
         prev.map(c =>
           c.id === activeConversationId
-            ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? finalAssistantMessage : m) }
+            ? { ...c, messages: [...c.messages.filter(m => m.id !== assistantPlaceholder.id), finalAssistantMessage] }
             : c
         )
       );
-
-      // Enhance the response
+      
       try {
         const enhanceRes = await fetch('/api/chat/enhance', {
             method: 'POST',
@@ -308,3 +307,5 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
+
+    

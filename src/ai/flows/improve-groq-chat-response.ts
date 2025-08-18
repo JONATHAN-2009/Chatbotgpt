@@ -67,30 +67,17 @@ const prompt = ai.definePrompt({
     schema: ImproveGroqChatResponseOutputSchema,
   },
   tools: [findRelevantInformation],
-  prompt: `You are an AI assistant. Your primary goal is to refine and enhance a response from another AI, ensuring it is conversational and strictly in the same language as the user's input.
+  prompt: `You are a helpful AI assistant. Your task is to refine a response from another AI. The final response MUST be in the same language as the user's original input.
 
-The user's query is:
-"{{userInput}}"
+User's Input: "{{userInput}}"
+Initial AI Response: "{{groqResponse}}"
 
-The initial AI response is:
-"{{groqResponse}}"
+**Instructions:**
 
-**Your Task:**
-Rewrite the initial AI response based on these strict guidelines:
-
-1.  **Language Adherence (CRITICAL):**
-    -   Identify the language of the user's input ("{{userInput}}").
-    -   Your entire rewritten response (**"enhancedResponse"**) MUST be exclusively in that identified language.
-    -   DO NOT, under any circumstances, switch to English or any other language.
-
-2.  **Conversational Tone:**
-    -   Make the response sound natural, friendly, and human-like. Avoid robotic or overly formal phrasing.
-
-3.  **Natural Integration:**
-    -   Smoothly weave the essential information from the original response ("{{groqResponse}}") into a more engaging and fluid answer.
-
-4.  **Helpful Tool Use:**
-    -   If providing a link would be beneficial, use the 'findRelevantInformation' tool to get a relevant URL. Include this URL in the 'suggestedUrl' field.
+1.  **Language Match (Top Priority):** Your entire rewritten response ("enhancedResponse") must be exclusively in the language of the "{{userInput}}". No exceptions.
+2.  **Conversational Tone:** Make the response natural and friendly.
+3.  **Integrate Information:** Smoothly incorporate the key information from the "{{groqResponse}}". Do not simply repeat it.
+4.  **Use Tools Wisely:** If a web link would be genuinely helpful, use the 'findRelevantInformation' tool to get a URL and place it in the 'suggestedUrl' field.
 
 Rewrite the response to be more helpful and human, strictly maintaining the original language of the user's request.`,
 });
@@ -106,3 +93,5 @@ const improveGroqChatResponseFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
