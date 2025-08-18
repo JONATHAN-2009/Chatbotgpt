@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      return new NextResponse(JSON.stringify({ error: 'Missing GEMINI_API_KEY in environment variables' }), { status: 500 });
+    }
     const { userInput, groqResponse } = await req.json();
     if (!userInput || !groqResponse) {
         return new NextResponse(JSON.stringify({ error: 'Missing userInput or groqResponse' }), { status: 400 });
@@ -11,6 +14,9 @@ export async function POST(req: Request) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('[ENHANCE_API_ERROR]', error);
-    return new NextResponse(JSON.stringify({ error: 'Failed to enhance response' }), { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to enhance response';
+    return new NextResponse(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 }
+
+    

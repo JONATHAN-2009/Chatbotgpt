@@ -19,11 +19,11 @@ export function ChatMessage({ message }: { message: Message }) {
   const isUser = role === 'user';
 
   return (
-    <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : '')}>
       <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2 bg-blue-500 text-white' : 'order-1 bg-black text-white')}>
         {isUser ? 'You' : <GrokIcon />}
       </div>
-      <div className={cn('flex-1 pt-0.5', isUser ? 'order-1 text-right' : 'order-2 text-left')}>
+      <div className={cn('flex-1 pt-0.5 max-w-[80%]', isUser ? 'order-1' : 'order-2')}>
         <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
         <div className={cn('p-4 rounded-lg mt-1', isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black')}>
           <article className="prose prose-sm dark:prose-invert max-w-none break-words text-current">
@@ -60,3 +60,5 @@ export function ChatMessage({ message }: { message: Message }) {
     </div>
   );
 }
+
+    

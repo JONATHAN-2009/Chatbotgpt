@@ -192,7 +192,13 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         finalAssistantMessage.content = enhancedData.enhancedResponse;
         finalAssistantMessage.url = enhancedData.suggestedUrl;
       } else {
-        console.error("Failed to enhance response");
+        const errorData = await enhanceRes.json();
+        console.error("Failed to enhance response", errorData.error);
+        toast({
+          variant: "destructive",
+          title: "Failed to enhance response",
+          description: errorData.error,
+        });
       }
       
       setConversations(prev =>
@@ -296,3 +302,5 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       </div>
   );
 }
+
+    
