@@ -25,6 +25,14 @@ const NewLogo = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const LoadingDots = () => (
+    <div className="flex items-center gap-1.5">
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+    </div>
+);
+
 
 export function ChatMessage({ message }: { message: Message }) {
   const { role, content, url } = message;
@@ -43,57 +51,63 @@ export function ChatMessage({ message }: { message: Message }) {
     )
   }
 
+  const isLoading = role === 'assistant' && !content;
+
   return (
      <div className="flex gap-3">
         <Avatar className="h-8 w-8 bg-black flex items-center justify-center text-white">
             <NewLogo className="size-6" />
         </Avatar>
         <div className='flex flex-col items-start gap-2 w-full'>
-            <div className="prose prose-sm max-w-none text-black w-full">
-                 <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        code(props) {
-                            const {children, className, node, ...rest} = props
-                            const match = /language-(\w+)/.exec(className || '')
-                            return match ? (
-                                <SyntaxHighlighter
-                                    {...rest}
-                                    PreTag="div"
-                                    children={String(children).replace(/\n$/, '')}
-                                    language={match[1]}
-                                    style={atomDark}
-                                    wrapLongLines={true}
-                                />
-                            ) : (
-                                <code {...rest} className={className}>
-                                    {children}
-                                </code>
-                            )
-                        }
-                    }}
-                 >
-                    {content}
-                </ReactMarkdown>
-            </div>
-            <div className="flex items-center gap-1 text-gray-500">
-                <Button variant="ghost" size="icon" className="h-7 w-7"><RefreshCw className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Copy className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Upload className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsUp className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsDown className="size-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="size-4" /></Button>
-                <span className="text-xs">3,1s</span>
-            </div>
-            {url && (
-                <div className="mt-1 text-left">
-                    <Button variant="outline" size="sm" asChild className="h-8">
-                        <Link href={url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 size-4" />
-                            Learn more
-                        </Link>
-                    </Button>
+            {isLoading ? <LoadingDots /> : (
+            <>
+                <div className="prose prose-sm max-w-none text-black w-full">
+                     <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            code(props) {
+                                const {children, className, node, ...rest} = props
+                                const match = /language-(\w+)/.exec(className || '')
+                                return match ? (
+                                    <SyntaxHighlighter
+                                        {...rest}
+                                        PreTag="div"
+                                        children={String(children).replace(/\n$/, '')}
+                                        language={match[1]}
+                                        style={atomDark}
+                                        wrapLongLines={true}
+                                    />
+                                ) : (
+                                    <code {...rest} className={className}>
+                                        {children}
+                                    </code>
+                                )
+                            }
+                        }}
+                     >
+                        {content}
+                    </ReactMarkdown>
                 </div>
+                <div className="flex items-center gap-1 text-gray-500">
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><RefreshCw className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><Copy className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><Upload className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsUp className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsDown className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="size-4" /></Button>
+                    <span className="text-xs">3,1s</span>
+                </div>
+                {url && (
+                    <div className="mt-1 text-left">
+                        <Button variant="outline" size="sm" asChild className="h-8">
+                            <Link href={url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 size-4" />
+                                Learn more
+                            </Link>
+                        </Button>
+                    </div>
+                )}
+            </>
             )}
         </div>
     </div>
