@@ -8,7 +8,6 @@ import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask, MessageSquare, Compass, Code } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { ChatMessage } from '@/components/chat-message';
 import { nanoid } from 'nanoid';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -29,7 +28,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
              <div className="relative w-full bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <Textarea
@@ -375,3 +374,5 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
+
+    
