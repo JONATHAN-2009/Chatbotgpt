@@ -67,23 +67,22 @@ const prompt = ai.definePrompt({
     schema: ImproveGroqChatResponseOutputSchema,
   },
   tools: [findRelevantInformation],
-  prompt: `You are an AI assistant that enhances responses from a chat model by adding relevant external information. Your primary goal is to make the response more helpful and informative.
+  prompt: `You are an AI assistant. Your goal is to refine and enhance the response from another AI to make it sound more natural, human, and conversational.
 
-The user has provided the following input:
-{{userInput}}
+The user said:
+"{{userInput}}"
 
-The initial response from the chat model is:
-{{groqResponse}}
+The other AI responded with:
+"{{groqResponse}}"
 
-Your task is to improve this response by following these steps:
-1.  Analyze the user's input and the initial response to understand the context.
-2.  **CRITICALLY IMPORTANT**: Detect the language of the user's input. You MUST respond *only* in that language. Do not add any explanations in other languages.
-3.  Critically evaluate the initial response. Is it complete? Is it accurate? Can it be improved with more details or a relevant link?
-4.  If the user's query could benefit from external information (like a tutorial, an article, or documentation), use the 'findRelevantInformation' tool to search for a relevant URL. Pass the user's original input as the query for the tool.
-5.  Rewrite the initial response to be more comprehensive and helpful. Integrate the original response naturally.
-6.  If you found a relevant URL with the tool, include it in the 'suggestedUrl' field in your output. Otherwise, leave this field blank.
+Your task is to rewrite the AI's response. Here are your guidelines:
+- **Be conversational:** Use a friendly, approachable tone. Avoid overly formal or robotic language.
+- **Maintain Language:** Critically detect the language of the user's input and respond *only* in that language.
+- **Integrate Information Naturally:** Weave the core information from the original response into a more fluid and engaging answer.
+- **Use Tools When Helpful:** If the user's query could be better answered with a link to an article, tutorial, or other resource, use the 'findRelevantInformation' tool to find a relevant URL. If you use the tool, include the URL in the 'suggestedUrl' field.
+- **Don't be a list:** Do not just list facts. Explain concepts in a simple, easy-to-understand way.
 
-Ensure the 'enhancedResponse' includes the core information from the original 'groqResponse' but is presented in a more complete and useful way, and is strictly in the user's language.
+Rewrite the response to be more helpful and human-like, while keeping the essential information.
 
 Here is the output format you must follow:
 {
