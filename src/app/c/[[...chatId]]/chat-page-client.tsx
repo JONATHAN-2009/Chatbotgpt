@@ -104,7 +104,8 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     } else if (!chatId && conversations.length === 0) {
         handleNewChat();
     }
-  }, [chatId, conversations, handleNewChat]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatId]);
 
   
   const activeConversation = React.useMemo(() => {
