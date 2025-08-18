@@ -12,7 +12,7 @@ import { ChatMessage } from '@/components/chat-message';
 import { nanoid } from 'nanoid';
 
 const GrokIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-12">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-6 text-black">
         <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM16.63 15.207C16.444 15.392 16.188 15.5 15.923 15.5C15.658 15.5 15.402 15.392 15.216 15.207L12.489 12.485L9.778 15.196C9.592 15.381 9.336 15.489 9.071 15.489C8.806 15.489 8.55 15.381 8.364 15.196C7.993 14.825 7.993 14.225 8.364 13.854L11.075 11.143L8.364 8.432C7.993 8.061 7.993 7.461 8.364 7.09C8.735 6.719 9.335 6.719 9.706 7.09L12.417 9.801L15.216 7.002C15.587 6.631 16.187 6.631 16.558 7.002C16.929 7.373 16.929 7.973 16.558 8.344L13.759 11.143L16.63 13.94C17.001 14.311 17.001 14.836 16.63 15.207Z" fill="currentColor"/>
     </svg>
 );
@@ -255,8 +255,10 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   return (
       <div className="flex items-center justify-center h-screen bg-white">
         <div className="text-center">
-          <GrokIcon />
-          <h1 className="text-4xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
+          <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </div>
+          <h1 className="text-4xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
         </div>
       </div>
   );
