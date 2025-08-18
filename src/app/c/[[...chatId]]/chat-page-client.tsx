@@ -26,7 +26,7 @@ const NewLogo = ({ className }: { className?: string }) => (
 );
 
 
-const Sidebar = () => {
+const Sidebar = ({ onNewChat }: { onNewChat: () => void }) => {
     const GrokIconSidebar = () => (
         <svg width="24" height="24" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M368 256l-50.28 50.28L368 356.57l-50.28 50.28L267.43 356.57l-50.28 50.28L166.86 356.57 116.57 406.85l-50.28-50.28L116.57 306.28l-50.28-50.28L116.57 205.71l-50.28-50.28L116.57 105.14l50.29-50.28L217.14 105.14l50.29-50.28 50.28 50.28L267.43 155.43l50.28-50.29 50.28 50.29-50.28 50.28 50.28 50.29zm-112.57 0l50.28-50.29-50.28-50.28-50.29 50.28zm-50.28 50.28l50.28 50.29 50.29-50.29-50.29-50.28z"/></svg>
     )
@@ -52,7 +52,7 @@ const Sidebar = () => {
         <aside className="w-14 bg-gray-50 border-r border-gray-200 flex flex-col items-center py-4 space-y-4 text-gray-600">
             <GrokIconSidebar />
             <Button variant="ghost" size="icon" className="text-black h-8 w-8"><Search className="size-5" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNewChat}><SquarePen className="size-5" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><SoundWaveIcon /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><BoxIcon /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><Compass className="size-5" /></Button>
@@ -247,7 +247,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   if (!hasMessages) {
      return (
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
-            <Sidebar />
+            <Sidebar onNewChat={handleNewChat} />
             <div className="flex-1 flex flex-col">
                 <main className="flex-1 flex flex-col items-center justify-center p-4">
                     <div className="flex-grow flex flex-col items-center justify-center text-center gap-4">
@@ -274,7 +274,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   return (
     <div className="flex h-screen bg-[#F9F9F9] text-foreground overflow-hidden">
-      <Sidebar/>
+      <Sidebar onNewChat={handleNewChat} />
       <div className="flex-1 flex flex-col">
         <ChatArea
           activeConversation={activeConversation}
