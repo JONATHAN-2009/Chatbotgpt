@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useParams } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,9 +28,12 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent({ chatId }: { chatId?: string | null }) {
+function ChatPageContent() {
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
+  const chatId = params.chatId?.[0];
+
   const { toast } = useToast();
   const { isMobile } = useSidebar();
 
@@ -110,7 +114,7 @@ function ChatPageContent({ chatId }: { chatId?: string | null }) {
         
         try {
           // Groq streams send string data that can be parsed as JSON
-          const lines = chunk.split('\\n');
+          const lines = chunk.split('\n');
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const jsonStr = line.substring(6);
@@ -166,7 +170,7 @@ function ChatPageContent({ chatId }: { chatId?: string | null }) {
         const summarizeRes = await fetch('/api/chat/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatHistory: `User: ${input}\\nAssistant: ${fullResponse}` }),
+            body: JSON.stringify({ chatHistory: `User: ${input}\nAssistant: ${fullResponse}` }),
         });
         const summaryData = await summarizeRes.json();
         setConversations(prev =>
@@ -279,12 +283,10 @@ function ChatPageContent({ chatId }: { chatId?: string | null }) {
 }
 
 
-export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
-  const chatId = params.chatId?.[0];
-
+export default function ChatPage() {
   return (
     <SidebarProvider>
-      <ChatPageContent chatId={chatId} />
+      <ChatPageContent />
     </SidebarProvider>
   );
 }
