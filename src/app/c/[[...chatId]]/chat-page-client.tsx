@@ -162,10 +162,16 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     setConversations(prev => prev.map(c => c.id === activeConversationId ? { ...c, messages: [...updatedMessages, assistantPlaceholder] } : c));
 
     try {
+      // Add a system message to enforce the language
+      const messagesForApi = [
+          { role: 'system', content: "Valio foana amin'ny fiteny farany nampiasain'ny mpampiasa." },
+          ...updatedMessages.map(({role, content}) => ({role, content}))
+      ];
+      
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updatedMessages.map(({role, content}) => ({role, content})) }),
+        body: JSON.stringify({ messages: messagesForApi }),
       });
 
       if (!res.body) {
@@ -225,31 +231,6 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         )
       );
       
-      try {
-        const enhanceRes = await fetch('/api/chat/enhance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
-        });
-        if (enhanceRes.ok) {
-            const enhancedData = await enhanceRes.json();
-            const enhancedMessage: Message = { 
-                ...finalAssistantMessage, 
-                content: enhancedData.enhancedResponse,
-                url: enhancedData.suggestedUrl
-            };
-            setConversations(prev =>
-                prev.map(c =>
-                    c.id === activeConversationId
-                        ? { ...c, messages: c.messages.map(m => m.id === finalAssistantMessage.id ? enhancedMessage : m) }
-                        : c
-                )
-            );
-        }
-      } catch (enhanceError) {
-        console.error("Could not enhance response", enhanceError);
-      }
-      
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -307,5 +288,3 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
-
-    
