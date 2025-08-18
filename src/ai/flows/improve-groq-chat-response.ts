@@ -23,7 +23,6 @@ const ImproveGroqChatResponseOutputSchema = z.object({
   suggestedUrl: z
     .string()
     .nullable()
-    .optional()
     .describe('An optional URL providing relevant external information.'),
 });
 export type ImproveGroqChatResponseOutput = z.infer<
@@ -78,12 +77,13 @@ The initial response from the chat model is:
 
 Your task is to improve this response by following these steps:
 1.  Analyze the user's input and the initial response to understand the context.
-2.  Critically evaluate the initial response. Is it complete? Is it accurate? Can it be improved with more details or a relevant link?
-3.  If the user's query could benefit from external information (like a tutorial, an article, or documentation), use the 'findRelevantInformation' tool to search for a relevant URL. Pass the user's original input as the query for the tool.
-4.  Rewrite the initial response to be more comprehensive and helpful. Integrate the original response naturally.
-5.  If you found a relevant URL with the tool, include it in the 'suggestedUrl' field in your output. Otherwise, leave this field blank.
+2.  **CRITICALLY IMPORTANT**: Detect the language of the user's input. You MUST respond *only* in that language. Do not add any explanations in other languages.
+3.  Critically evaluate the initial response. Is it complete? Is it accurate? Can it be improved with more details or a relevant link?
+4.  If the user's query could benefit from external information (like a tutorial, an article, or documentation), use the 'findRelevantInformation' tool to search for a relevant URL. Pass the user's original input as the query for the tool.
+5.  Rewrite the initial response to be more comprehensive and helpful. Integrate the original response naturally.
+6.  If you found a relevant URL with the tool, include it in the 'suggestedUrl' field in your output. Otherwise, leave this field blank.
 
-Ensure the 'enhancedResponse' includes the core information from the original 'groqResponse' but is presented in a more complete and useful way.
+Ensure the 'enhancedResponse' includes the core information from the original 'groqResponse' but is presented in a more complete and useful way, and is strictly in the user's language.
 
 Here is the output format you must follow:
 {
