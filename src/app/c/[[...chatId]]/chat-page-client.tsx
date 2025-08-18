@@ -31,7 +31,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
              <div className="relative w-full bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <Textarea
