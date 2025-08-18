@@ -8,7 +8,7 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
 const NewLogo = ({ className }: { className?: string }) => (
@@ -62,7 +62,7 @@ export function ChatMessage({ message }: { message: Message }) {
                                     PreTag="div"
                                     children={String(children).replace(/\n$/, '')}
                                     language={match[1]}
-                                    style={atomOneDark}
+                                    style={atomDark}
                                     wrapLongLines={true}
                                 />
                             ) : (
