@@ -68,10 +68,13 @@ const Sidebar = () => {
 
 const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: () => void, isLoading: boolean }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const lastMessageIsUser = activeConversation?.messages[activeConversation.messages.length - 1]?.role === 'user';
 
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages]);
+    if (lastMessageIsUser) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [activeConversation?.messages, lastMessageIsUser]);
 
   return (
       <div className="flex-1 flex flex-col overflow-hidden">
