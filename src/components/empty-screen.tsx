@@ -18,40 +18,11 @@ export function EmptyScreen({ onSelect }: EmptyScreenProps) {
   return (
     <div className="mx-auto max-w-3xl px-4 h-full flex flex-col justify-center items-center">
       <div className="rounded-full border bg-primary/10 p-4 mb-4">
-        <Sparkles className="size-10 text-primary" />
+        <Bot className="size-10 text-primary" />
       </div>
-      <h1 className="mb-2 text-3xl font-semibold text-center">
-        How can I help you today?
+      <h1 className="mb-8 text-2xl font-normal text-center">
+        Prêt quand vous l'êtes.
       </h1>
-      <p className="mb-8 text-muted-foreground leading-normal text-center max-w-md">
-        Start a conversation by typing a message below or select one of the examples.
-      </p>
-      <div className="space-y-4 w-full">
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {examplePrompts.slice(0, 2).map((prompt, index) => (
-                <Button
-                key={index}
-                variant="outline"
-                className="w-full h-auto text-left justify-start p-4 rounded-xl"
-                onClick={() => onSelect(prompt)}
-                >
-                {prompt}
-                </Button>
-            ))}
-        </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {examplePrompts.slice(2, 4).map((prompt, index) => (
-                <Button
-                key={index}
-                variant="outline"
-                className="w-full h-auto text-left justify-start p-4 rounded-xl"
-                onClick={() => onSelect(prompt)}
-                >
-                {prompt}
-                </Button>
-            ))}
-        </div>
-      </div>
     </div>
   );
 }

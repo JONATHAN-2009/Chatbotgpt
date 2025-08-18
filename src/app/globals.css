@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 240 5% 96%;
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -16,22 +16,14 @@
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 217 91% 96%;
-    --accent-foreground: 217 91% 60%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 217 91% 60%;
-    --radius: 0.75rem;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217 91% 60%;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -54,14 +46,6 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 217 91% 60%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -79,13 +63,25 @@
   .prose {
     @apply text-foreground;
   }
+  .prose p {
+    @apply my-4;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply my-4;
+  }
+  .prose ul, .prose ol {
+    @apply my-4;
+  }
   .prose pre {
-    @apply bg-muted rounded-md p-4 text-sm text-foreground overflow-x-auto;
+    @apply bg-muted rounded-md p-4 text-sm text-foreground overflow-x-auto my-4;
   }
   .prose code {
     @apply px-1 py-0.5 bg-muted rounded-md font-mono text-sm;
   }
   .prose pre code {
     @apply bg-transparent p-0;
+  }
+  .prose a {
+    @apply text-primary hover:underline;
   }
 }

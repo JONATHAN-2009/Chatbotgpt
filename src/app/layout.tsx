@@ -1,10 +1,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'GroqChat',
-  description: 'A modern and elegant AI chat application powered by Groq.',
+  title: 'ChatGPT',
+  description: 'A modern and elegant AI chat application.',
 };
 
 export default function RootLayout({

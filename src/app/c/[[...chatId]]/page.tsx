@@ -7,11 +7,21 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Plus, Send, User } from 'lucide-react';
+import { Bot, Plus, Send, User, MessageSquare, Settings, Mic, Upload, Sparkles } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown } from 'lucide-react';
+
 
 export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
   const chatId = params.chatId?.[0];
@@ -200,59 +210,121 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
     }
   }, [pathname, conversations]);
 
+  const hasMessages = activeConversation && activeConversation.messages.length > 0;
+
   return (
-    <div className="flex flex-col h-[100svh]">
-        <header className="flex items-center justify-between p-2 md:p-4 border-b">
-          <div className="flex items-center gap-2">
-              <div className='p-2 bg-primary/20 rounded-lg'>
-                <Bot className="size-6 text-primary" />
-              </div>
-              <h1 className="text-lg font-semibold">GroqChat</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={handleNewChat} variant="ghost">
-              <Plus className="mr-2" size={16} /> New Chat
-            </Button>
-            <div className='p-2 rounded-full bg-muted'>
-                <User className="size-6" />
-            </div>
-          </div>
-        </header>
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 md:p-6">
-              {activeConversation && activeConversation.messages.length > 0 ? (
-                <div className="space-y-6">
-                  {activeConversation.messages.map(message => (
-                    <ChatMessage key={message.id} message={message} />
-                  ))}
+    <div className="flex h-[100svh] bg-background text-foreground">
+        <aside className="w-64 flex flex-col p-2 bg-background border-r">
+            <div className="flex-1">
+                <Button variant="ghost" className="w-full justify-start gap-2 mb-4" onClick={handleNewChat}>
+                    <Bot size={20} />
+                    New Chat
+                    <div className="flex-1" />
+                    <MessageSquare size={20} />
+                </Button>
+                <div className="space-y-1">
+                    {conversations.filter(c => c.messages.length > 0).map(c => (
+                        <Button key={c.id} variant={c.id === activeConversationId ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setActiveConversationId(c.id)}>
+                            {c.title}
+                        </Button>
+                    ))}
                 </div>
-              ) : (
-                <EmptyScreen onSelect={onSelectPrompt}/>
-              )}
             </div>
-          </ScrollArea>
-        </div>
-        <div className="p-4 border-t bg-background">
-          <form ref={formRef} onSubmit={handleSendMessage} className="relative">
-            <Textarea
-              ref={inputRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              placeholder="Message GroqChat..."
-              className="pr-16 min-h-[60px] rounded-full"
-              onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      formRef.current?.requestSubmit();
-                  }
-              }}
-            />
-            <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full" disabled={isLoading || !input.trim()} id="chat-form-submit">
-              <Send className="size-5" />
-            </Button>
-          </form>
-        </div>
+            <div className="p-2">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="w-full justify-start gap-2">
+                            <div className="size-7 rounded-full bg-blue-500 text-white flex items-center justify-center">K</div>
+                            <span className="truncate">User</span>
+                            <div className='flex-1' />
+                            <Settings size={20} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-60">
+                        <DropdownMenuItem>My plan</DropdownMenuItem>
+                        <DropdownMenuItem>Custom instructions</DropdownMenuItem>
+                        <DropdownMenuItem>Settings</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Log out</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        </aside>
+
+        <main className="flex-1 flex flex-col h-full overflow-hidden">
+            <header className="flex items-center justify-between p-2 border-b h-16">
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-1">
+                      <h1 className="text-lg font-semibold">ChatGPT</h1>
+                      <ChevronDown size={16} className="text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>ChatGPT</DropdownMenuItem>
+                    <DropdownMenuItem>Other Model</DropdownMenuItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost">
+                  <Sparkles className="mr-2" size={16} /> Améliorez votre forfait
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <User className="size-6" />
+                </Button>
+              </div>
+            </header>
+
+            <div className={`flex-1 relative ${!hasMessages ? 'flex flex-col' : ''}`}>
+                <ScrollArea className="h-full">
+                    <div className="p-4 md:p-6 max-w-4xl mx-auto">
+                        {hasMessages ? (
+                            <div className="space-y-6">
+                            {activeConversation.messages.map(message => (
+                                <ChatMessage key={message.id} message={message} />
+                            ))}
+                            </div>
+                        ) : (
+                            <EmptyScreen onSelect={onSelectPrompt}/>
+                        )}
+                    </div>
+                </ScrollArea>
+
+                <div className={`w-full p-4 md:p-6 self-end ${!hasMessages ? 'absolute bottom-0' : 'border-t'}`}>
+                    <div className="max-w-4xl mx-auto">
+                      <form ref={formRef} onSubmit={handleSendMessage} className="relative">
+                        <Textarea
+                          ref={inputRef}
+                          value={input}
+                          onChange={e => setInput(e.target.value)}
+                          placeholder="Posez une question..."
+                          className="pr-24 pl-12 min-h-[52px] rounded-2xl border-2 border-border focus:border-primary"
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  formRef.current?.requestSubmit();
+                              }
+                          }}
+                        />
+                         <Button type="button" size="icon" variant="ghost" className="absolute left-3 top-1/2 -translate-y-1/2">
+                          <Plus className="size-5" />
+                        </Button>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <Button type="button" size="icon" variant="ghost">
+                                <Mic className="size-5" />
+                            </Button>
+                             <Button type="submit" size="icon" className="bg-primary hover:bg-primary/90 rounded-lg" disabled={isLoading || !input.trim()}>
+                                <Send className="size-5" />
+                            </Button>
+                        </div>
+                      </form>
+                      <p className='text-xs text-center text-muted-foreground mt-2'>
+                        ChatGPT can make mistakes. Consider checking important information.
+                      </p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
   );
 }
