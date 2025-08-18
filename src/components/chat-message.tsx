@@ -1,7 +1,7 @@
 'use client';
 import type { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Bot, User, ExternalLink, RefreshCw, Copy, ThumbsUp, ThumbsDown, MoreHorizontal, SquarePen } from 'lucide-react';
+import { ExternalLink, RefreshCw, Copy, ThumbsUp, ThumbsDown, MoreHorizontal, SquarePen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from './ui/button';
@@ -20,8 +20,8 @@ export function ChatMessage({ message }: { message: Message }) {
 
   return (
     <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : 'justify-start')}>
-      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2' : 'order-1')}>
-        {isUser ? 'ED' : <GrokIcon />}
+      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2 bg-blue-500 text-white' : 'order-1')}>
+        {isUser ? 'You' : <GrokIcon />}
       </div>
       <div className={cn('flex-1 pt-0.5', isUser ? 'order-1 text-right' : 'order-2 text-left')}>
         <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
