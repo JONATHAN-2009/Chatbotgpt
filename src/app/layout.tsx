@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster as OldToaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes"
 
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {children}
-        <OldToaster />
-        <SonnerToaster />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <OldToaster />
+          <SonnerToaster />
+        </ThemeProvider>
       </body>
     </html>
   );
