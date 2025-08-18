@@ -23,7 +23,7 @@ export function ChatMessage({ message }: { message: Message }) {
       <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2' : 'order-1')}>
         {isUser ? 'ED' : <GrokIcon />}
       </div>
-      <div className={cn('flex-1 pt-0.5', isUser ? 'order-1' : 'order-2')}>
+      <div className={cn('flex-1 pt-0.5', isUser ? 'order-1 text-right' : 'order-2 text-left')}>
         <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
         <article className="prose prose-sm dark:prose-invert max-w-none break-words">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
