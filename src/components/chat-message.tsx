@@ -11,24 +11,16 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 
 
 const AiIcon = () => (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="size-6"
+    <svg 
+        viewBox="0 0 24 24" 
+        fill="currentColor" 
+        xmlns="http://www.w3.org/2000/svg"
+        className="size-6"
     >
-      <path
-        d="M8 12H8.01M12 12H12.01M16 12H16.01M21.364 10.182C21.7542 10.9334 22 11.7543 22 12.6061C22 16.9912 17.9653 20.6061 12.8788 20.6061C12.592 20.6061 12.3082 20.5912 12.0274 20.562C6.98285 20.218 3 16.0157 3 11.6364C3 7.82843 5.92893 4.63636 9.5 4.63636C10.1919 4.63636 10.864 4.72322 11.5 4.88182"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M17.5 1.5C19.433 1.5 21 3.067 21 5C21 6.933 19.433 8.5 17.5 8.5C15.567 8.5 14 6.933 14 5C14 3.067 15.567 1.5 17.5 1.5Z"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
+        <path fillRule="evenodd" clipRule="evenodd" d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z" fill="currentColor"/>
+        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
+        <path d="M12 17C14.7614 17 17 14.7614 17 12H19C19 15.866 15.866 19 12 19V17Z" fill="currentColor"/>
+        <path d="M7 12C7 9.23858 9.23858 7 12 7V5C8.13401 5 5 8.13401 5 12H7Z" fill="currentColor"/>
     </svg>
 );
 
@@ -82,4 +74,3 @@ export function ChatMessage({ message }: { message: Message }) {
     </div>
   );
 }
-
