@@ -277,12 +277,12 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <main className="flex-1 flex flex-col items-center justify-center text-center">
-                    <div className="flex flex-col items-center justify-center text-center gap-4">
+                <main className="flex-1 flex flex-col items-center justify-center p-4">
+                    <div className="flex-grow flex flex-col items-center justify-center text-center gap-4">
                         <GrokLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
-                    <div className="w-full max-w-4xl mt-auto p-4">
+                    <div className="w-full max-w-4xl p-4">
                       <ChatInput
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
