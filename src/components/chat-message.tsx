@@ -19,7 +19,7 @@ export function ChatMessage({ message }: { message: Message }) {
   const isUser = role === 'user';
 
   return (
-    <div className={cn('flex items-start gap-4')}>
+    <div className={cn('flex items-start gap-4', isUser ? 'justify-start' : 'justify-start')}>
       <div className="flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">
         {isUser ? 'ED' : <GrokIcon />}
       </div>
@@ -58,4 +58,3 @@ export function ChatMessage({ message }: { message: Message }) {
     </div>
   );
 }
-
