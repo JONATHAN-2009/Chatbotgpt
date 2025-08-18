@@ -3,8 +3,6 @@ import { Stream } from 'groq-sdk/streaming';
 
 export const runtime = 'edge';
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 function toDataStream(stream: Stream<Groq.Chat.CompletionChunk>) {
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
@@ -31,6 +29,8 @@ export async function POST(req: Request) {
     if (!process.env.GROQ_API_KEY) {
         return new Response('Missing GROQ_API_KEY in environment variables', { status: 500 });
     }
+    
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     const stream = await groq.chat.completions.create({
       model: 'compound-beta',
