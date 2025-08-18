@@ -10,6 +10,7 @@ import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, B
 import { Textarea } from '@/components/ui/textarea';
 import { nanoid } from 'nanoid';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChatMessage } from '@/components/chat-message';
 
 const GrokLogo = ({ large = false }: { large?: boolean }) => (
     <svg width={large ? "60" : "24"} height={large ? "60" : "24"} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
@@ -28,8 +29,8 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
-             <div className="relative w-full bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center px-4">
+             <div className="relative w-full bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <Textarea
                         value={input}
@@ -44,7 +45,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                         }}
                         rows={1}
                     />
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" className="text-muted-foreground w-8 h-8"><Paperclip className="size-5" /></Button>
                             <Button variant="ghost" size="sm" className="text-muted-foreground">
@@ -374,5 +375,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
+
+    
 
     
