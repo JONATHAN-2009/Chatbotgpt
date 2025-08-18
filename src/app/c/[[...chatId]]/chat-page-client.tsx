@@ -23,26 +23,21 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const MicIcon = () => (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 14C13.1046 14 14 13.1046 14 12V6C14 4.89543 13.1046 4 12 4C10.8954 4 10 4.89543 10 6V12C10 13.1046 10.8954 14 12 14Z" fill="currentColor"/>
         <path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12H5C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12H17Z" fill="currentColor"/>
       </svg>
     )
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
-            <Button variant="outline" className="rounded-full bg-white border-gray-200 text-sm font-normal text-gray-800 px-4 py-2 mb-4 shadow-sm">
-                <BrainCircuit className="mr-2 size-4"/>
-                Réfléchir plus intensément
-                <span className="ml-2 text-gray-400">x</span>
-            </Button>
-             <div className="relative w-full bg-white rounded-2xl shadow-lg p-2 border border-gray-200">
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4">
+             <div className="relative w-full bg-white rounded-xl shadow-lg p-1 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <div className="flex items-center">
                          <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground w-10 h-10"><Paperclip className="size-5" /></Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground">
-                                <Rocket className="mr-2 size-4" />
+                            <Button variant="ghost" size="icon" className="text-muted-foreground w-8 h-8"><Paperclip className="size-4" /></Button>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground h-8">
+                                <Rocket className="mr-1 size-4" />
                                 Automatique
                                 <ChevronDown className="ml-1 size-4" />
                             </Button>
@@ -51,7 +46,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             placeholder="Comment Grok peut-il aider ?"
-                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-base text-black p-2 mx-2 min-h-[40px]"
+                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-sm text-black p-2 mx-1 min-h-[36px]"
                              onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -60,11 +55,17 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                             }}
                             rows={1}
                         />
-                        <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-10 h-10 flex-shrink-0" disabled={isLoading || !input.trim()}>
+                        <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-8 h-8 flex-shrink-0" disabled={isLoading || !input.trim()}>
                           <MicIcon />
                         </Button>
                     </div>
                 </form>
+            </div>
+             <div className="flex items-center justify-center space-x-2 mt-2">
+                <Button variant="outline" size="sm" className="text-xs h-7">Automatique</Button>
+                <Button variant="outline" size="sm" className="text-xs h-7">DeepSearch</Button>
+                <Button variant="outline" size="sm" className="text-xs h-7">Dernières nouvelles</Button>
+                <Button variant="outline" size="sm" className="text-xs h-7">Modes</Button>
             </div>
         </div>
     );
@@ -72,18 +73,18 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
 
 const Sidebar = () => {
     const GrokIconSidebar = () => (
-        <svg width="28" height="28" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M368 256l-50.28 50.28L368 356.57l-50.28 50.28L267.43 356.57l-50.28 50.28L166.86 356.57 116.57 406.85l-50.28-50.28L116.57 306.28l-50.28-50.28L116.57 205.71l-50.28-50.28L116.57 105.14l50.29-50.28L217.14 105.14l50.29-50.28 50.28 50.28L267.43 155.43l50.28-50.29 50.28 50.29-50.28 50.28 50.28 50.29zm-112.57 0l50.28-50.29-50.28-50.28-50.29 50.28zm-50.28 50.28l50.28 50.29 50.29-50.29-50.29-50.28z"/></svg>
+        <svg width="24" height="24" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M368 256l-50.28 50.28L368 356.57l-50.28 50.28L267.43 356.57l-50.28 50.28L166.86 356.57 116.57 406.85l-50.28-50.28L116.57 306.28l-50.28-50.28L116.57 205.71l-50.28-50.28L116.57 105.14l50.29-50.28L217.14 105.14l50.29-50.28 50.28 50.28L267.43 155.43l50.28-50.29 50.28 50.29-50.28 50.28 50.28 50.29zm-112.57 0l50.28-50.29-50.28-50.28-50.29 50.28zm-50.28 50.28l50.28 50.29 50.29-50.29-50.29-50.28z"/></svg>
     )
 
     const BoxIcon = () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M21 16V8C21 7.46957 20.7893 6.96086 20.4142 6.58579C20.0391 6.21071 19.5304 6 19 6H5C4.46957 6 3.96086 6.21071 3.58579 6.58579C3.21071 6.96086 3 7.46957 3 8V16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18H19C19.5304 18 20.0391 17.7893 20.4142 17.4142C20.7893 17.0391 21 16.5304 21 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M3.27002 6.9602L12 12.0002L20.73 6.9602" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
     )
 
     const SoundWaveIcon = () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 10V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M7 8V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M11 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -93,19 +94,19 @@ const Sidebar = () => {
     )
 
     return (
-        <aside className="w-16 bg-gray-50 border-r border-gray-200 flex flex-col items-center py-4 space-y-6 text-gray-600">
+        <aside className="w-14 bg-gray-50 border-r border-gray-200 flex flex-col items-center py-4 space-y-4 text-gray-600">
             <GrokIconSidebar />
-            <Button variant="ghost" size="icon" className="text-black"><Search className="size-6" /></Button>
-            <Button variant="ghost" size="icon"><SquarePen className="size-6" /></Button>
-            <Button variant="ghost" size="icon"><SoundWaveIcon /></Button>
-            <Button variant="ghost" size="icon"><BoxIcon /></Button>
-            <Button variant="ghost" size="icon"><Compass className="size-6" /></Button>
-            <Button variant="ghost" size="icon"><History className="size-6" /></Button>
+            <Button variant="ghost" size="icon" className="text-black h-8 w-8"><Search className="size-5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><SoundWaveIcon /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><BoxIcon /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><Compass className="size-5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><History className="size-5" /></Button>
             <div className="flex-grow" />
-            <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full bg-purple-600 text-white font-bold">C</Button>
-            <Button variant="ghost" size="icon" className="text-gray-400">
-                <ChevronDown className="size-5 rotate-90" />
-                <ChevronDown className="size-5 rotate-90 -ml-2" />
+            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-xs">C</Button>
+            <Button variant="ghost" size="icon" className="text-gray-400 h-8 w-8">
+                <ChevronDown className="size-4 rotate-90" />
+                <ChevronDown className="size-4 rotate-90 -ml-2" />
             </Button>
         </aside>
     )
@@ -124,9 +125,9 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
         return (
             <main className="flex-1 flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center text-center">
-                    <GrokLogo className="w-[60px] h-[60px] text-black"/>
-                    <h1 className="text-5xl font-bold mt-4">Grok</h1>
-                    <div className="mt-12 w-full">
+                    <GrokLogo className="w-[50px] h-[50px] text-black"/>
+                    <h1 className="text-3xl font-bold mt-4">Grok</h1>
+                    <div className="mt-8 w-full">
                         <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
                     </div>
                 </div>
@@ -136,8 +137,8 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
     
     return (
         <div className="flex-1 flex flex-col">
-          <main className="flex-1 overflow-y-auto p-6">
-              <div className="max-w-3xl mx-auto space-y-8">
+          <main className="flex-1 overflow-y-auto p-4">
+              <div className="max-w-3xl mx-auto space-y-6">
                   {activeConversation.messages.map((message) => (
                       <ChatMessage key={message.id} message={message} />
                   ))}
@@ -255,7 +256,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     );
                   }
                 } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr);
+                    console.error("Failed to parse chunk:", jsonStr, error);
                 }
             }
         }
@@ -263,7 +264,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       
       if (buffer.startsWith('data: ')) {
         const jsonStr = buffer.substring(6);
-        if (jsonStr !== '[DONE]') {
+        if (jsonStr && jsonStr !== '[DONE]') {
           try {
             const chunk = JSON.parse(jsonStr);
             const content = chunk.choices[0]?.delta?.content || '';
@@ -271,7 +272,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                 fullResponse += content;
             }
           } catch (e) {
-             console.error("Failed to parse final chunk:", jsonStr);
+             console.error("Failed to parse final chunk:", jsonStr, e);
           }
         }
       }
@@ -349,14 +350,14 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <header className="p-4 flex justify-end items-center h-16">
+                <header className="p-4 flex justify-end items-center h-14">
                     {/* Placeholder for header content */}
                 </header>
                 <main className="flex-1 flex flex-col items-center justify-center">
                   <div className="flex flex-col items-center justify-center text-center">
-                      <GrokLogo className="w-[60px] h-[60px] text-black" />
-                      <h1 className="text-4xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
-                      <div className="mt-12 w-full px-4">
+                      <GrokLogo className="w-[50px] h-[50px] text-black" />
+                      <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
+                      <div className="mt-8 w-full px-4">
                           <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
                       </div>
                   </div>
@@ -370,12 +371,12 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     <div className="flex h-screen bg-[#F9F9F9] text-foreground">
       <Sidebar/>
       <div className="flex-1 flex flex-col">
-        <header className="p-4 flex justify-end items-center border-b border-gray-200 h-16">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon"><SquarePen className="size-5" /></Button>
-            <Button variant="ghost" size="icon"><Star className="size-5" /></Button>
-            <Button variant="ghost" size="icon"><MoreHorizontal className="size-5" /></Button>
-            <Button variant="outline" className="rounded-md border-gray-300">
+        <header className="p-2 flex justify-end items-center border-b border-gray-200 h-14">
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
+            <Button variant="outline" size="sm" className="h-8">
                 <Upload className="mr-2 size-4" />
                 Partager
             </Button>

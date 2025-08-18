@@ -7,6 +7,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { Avatar, AvatarFallback } from './ui/avatar';
+
 
 const GrokIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-6">
@@ -21,38 +23,46 @@ export function ChatMessage({ message }: { message: Message }) {
 
   if (isUser) {
     return (
-        <div className="flex justify-end">
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-2 max-w-[80%]">
-                <p className="text-black">{content}</p>
+        <div className="flex gap-3 justify-end">
+            <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 max-w-[80%]">
+                <p className="text-black text-sm">{content}</p>
             </div>
+             <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-purple-600 text-white font-bold text-xs">C</AvatarFallback>
+            </Avatar>
         </div>
     )
   }
 
   return (
-    <div className='flex flex-col items-start gap-4'>
-        <div className="prose prose-sm max-w-none text-black">
-             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-        </div>
-        <div className="flex items-center gap-2 text-gray-500">
-            <Button variant="ghost" size="icon" className="h-8 w-8"><RefreshCw className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Upload className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsUp className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsDown className="size-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
-            <span className="text-xs">3,1s</span>
-        </div>
-        {url && (
-            <div className="mt-2 text-left">
-                <Button variant="outline" size="sm" asChild>
-                    <Link href={url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 size-4" />
-                        Learn more
-                    </Link>
-                </Button>
+     <div className="flex gap-3">
+        <Avatar className="h-8 w-8 bg-black flex items-center justify-center">
+            <GrokIcon />
+        </Avatar>
+        <div className='flex flex-col items-start gap-2'>
+            <div className="prose prose-sm max-w-none text-black">
+                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
             </div>
-        )}
+            <div className="flex items-center gap-1 text-gray-500">
+                <Button variant="ghost" size="icon" className="h-7 w-7"><RefreshCw className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><Copy className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><Upload className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsUp className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><ThumbsDown className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7"><MoreHorizontal className="size-4" /></Button>
+                <span className="text-xs">3,1s</span>
+            </div>
+            {url && (
+                <div className="mt-1 text-left">
+                    <Button variant="outline" size="sm" asChild className="h-8">
+                        <Link href={url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 size-4" />
+                            Learn more
+                        </Link>
+                    </Button>
+                </div>
+            )}
+        </div>
     </div>
   );
 }
