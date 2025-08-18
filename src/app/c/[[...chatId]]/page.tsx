@@ -3,21 +3,8 @@
 
 import * as React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarInset,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Plus, Send, User } from 'lucide-react';
@@ -26,15 +13,15 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
+export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+  const chatId = params.chatId?.[0];
   const router = useRouter();
   const pathname = usePathname();
   
   const { toast } = useToast();
-  const { isMobile, setOpenMobile } = useSidebar();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(initialChatId ?? null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
 
@@ -48,26 +35,21 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
     setConversations(prev => [...prev, newConversation]);
     setActiveConversationId(newId);
     router.push(`/c/${newId}`);
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  }, [isMobile, router, setOpenMobile]);
+  }, [router]);
 
   React.useEffect(() => {
-    if (initialChatId && !conversations.some(c => c.id === initialChatId)) {
-        if (initialChatId === 'new') {
+    if (chatId && !conversations.some(c => c.id === chatId)) {
+        if (chatId === 'new') {
             handleNewChat();
         } else {
-            // This could be a pre-existing chat, for now we'll just make a new one.
-            // In a real app, you'd fetch this from a database.
-            const newConversation: Conversation = { id: initialChatId, title: `Chat ${initialChatId.substring(0, 4)}`, messages: [] };
+            const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0, 4)}`, messages: [] };
             setConversations(prev => [...prev, newConversation]);
-            setActiveConversationId(initialChatId);
+            setActiveConversationId(chatId);
         }
-    } else if (!initialChatId && conversations.length === 0) {
+    } else if (!chatId && conversations.length === 0) {
         handleNewChat();
     }
-  }, [initialChatId, conversations, handleNewChat]);
+  }, [chatId, conversations, handleNewChat]);
 
   
   const activeConversation = React.useMemo(() => {
@@ -201,7 +183,7 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
     setInput(prompt);
     setTimeout(() => {
         inputRef.current?.focus();
-        formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        formRef.current?.requestSubmit();
     }, 0);
   }
 
@@ -219,53 +201,21 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
   }, [pathname, conversations]);
 
   return (
-    <div className="flex h-[100svh]">
-      <Sidebar className="w-full max-w-xs" collapsible="icon">
-        <SidebarHeader>
+    <div className="flex flex-col h-[100svh]">
+        <header className="flex items-center justify-between p-2 md:p-4 border-b">
           <div className="flex items-center gap-2">
               <div className='p-2 bg-primary/20 rounded-lg'>
                 <Bot className="size-6 text-primary" />
               </div>
               <h1 className="text-lg font-semibold">GroqChat</h1>
           </div>
-        </SidebarHeader>
-        <SidebarContent className="p-0">
-          <div className='p-2'>
-            <Button onClick={handleNewChat} className="w-full justify-start" variant="ghost">
+          <div className="flex items-center gap-2">
+            <Button onClick={handleNewChat} variant="ghost">
               <Plus className="mr-2" size={16} /> New Chat
             </Button>
-          </div>
-          <SidebarMenu className="flex-1 p-2">
-              {conversations.map(convo => (
-                  <SidebarMenuItem key={convo.id}>
-                      <SidebarMenuButton 
-                          onClick={() => {
-                              setActiveConversationId(convo.id);
-                              router.push(`/c/${convo.id}`);
-                          }}
-                          isActive={pathname === `/c/${convo.id}`}
-                          className="w-full justify-start truncate"
-                      >
-                          {convo.title}
-                      </SidebarMenuButton>
-                  </SidebarMenuItem>
-              ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-center gap-3 p-4">
-              <div className='p-2 rounded-full bg-muted'>
-                  <User className="size-6" />
-              </div>
-              <span className='group-data-[collapsible=icon]:hidden'>User</span>
-          </div>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset className="flex flex-col">
-        <header className="flex items-center justify-between p-2 md:p-4 border-b">
-          <h2 className="text-lg font-semibold truncate">{activeConversation?.title || 'Chat'}</h2>
-          <div className="md:hidden">
-              <SidebarTrigger />
+            <div className='p-2 rounded-full bg-muted'>
+                <User className="size-6" />
+            </div>
           </div>
         </header>
         <div className="flex-1 overflow-hidden">
@@ -303,19 +253,7 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
             </Button>
           </form>
         </div>
-      </SidebarInset>
     </div>
-  );
-}
-
-
-export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
-  const chatId = params.chatId?.[0];
-
-  return (
-    <SidebarProvider>
-      <ChatPageContent chatId={chatId} />
-    </SidebarProvider>
   );
 }
 
