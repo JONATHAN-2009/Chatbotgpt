@@ -18,7 +18,7 @@ export type ImproveGroqChatResponseInput = z.infer<typeof ImproveGroqChatRespons
 
 const ImproveGroqChatResponseOutputSchema = z.object({
   enhancedResponse: z.string().describe('The Groq chat response enhanced with external information.'),
-  suggestedUrl: z.string().optional().describe('An optional URL providing relevant external information.'),
+  suggestedUrl: z.string().nullable().optional().describe('An optional URL providing relevant external information.'),
 });
 export type ImproveGroqChatResponseOutput = z.infer<typeof ImproveGroqChatResponseOutputSchema>;
 
@@ -68,7 +68,7 @@ const prompt = ai.definePrompt({
   Here is the output you should follow:
   { 
     enhancedResponse: string,
-    suggestedUrl?: string,
+    suggestedUrl?: string | null,
   }`,
 });
 
