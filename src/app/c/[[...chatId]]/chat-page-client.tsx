@@ -60,10 +60,10 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                     </div>
                 </form>
             </div>
-            <div className="flex items-center gap-2 mt-4">
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800"><Bot className="mr-2 size-4"/>DeepSearch</Button>
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800"><History className="mr-2 size-4"/>Dernières nouvelles</Button>
-              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800"><Users className="mr-2 size-4"/>Modes<ChevronDown className="ml-1 size-4" /></Button>
+            <div className="flex items-center gap-4 mt-8">
+              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><Bot className="mr-2 size-4"/>DeepSearch</Button>
+              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><History className="mr-2 size-4"/>Dernières nouvelles</Button>
+              <Button variant="outline" className="rounded-full bg-gray-100 border-gray-300 text-sm font-normal text-gray-800 px-4 py-2"><Users className="mr-2 size-4"/>Modes<ChevronDown className="ml-1 size-4" /></Button>
             </div>
         </div>
     );
@@ -158,27 +158,24 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   const handleNewChat = React.useCallback(() => {
     const newId = nanoid();
-    const newConversation: Conversation = {
-      id: newId,
-      title: 'New Chat',
-      messages: [],
-    };
-    setConversations(prev => [...prev, newConversation]);
-    setActiveConversationId(newId);
     router.push(`/c/${newId}`);
   }, [router]);
 
   React.useEffect(() => {
+    // If a chatId is present in the URL, ensure it's the active one.
     if (chatId) {
+      // If the conversation doesn't exist, create it.
       if (!conversations.some(c => c.id === chatId)) {
         const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0,4)}`, messages: [] };
         setConversations(prev => [...prev, newConversation]);
       }
       setActiveConversationId(chatId);
     } else if (!activeConversationId && conversations.length === 0) {
+      // If there's no active chat and no chats at all, create a new one.
       handleNewChat();
     }
-  }, [chatId, conversations, activeConversationId, handleNewChat]);
+     // Only re-run this effect if the chatId from the URL changes.
+  }, [chatId]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -248,7 +245,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                         );
                     }
                 } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr);
+                    console.error("Failed to parse chunk:", jsonStr, error);
                 }
             }
         }
