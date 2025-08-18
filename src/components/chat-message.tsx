@@ -19,12 +19,12 @@ export function ChatMessage({ message }: { message: Message }) {
   const isUser = role === 'user';
 
   return (
-    <div className={cn('flex items-start gap-4', isUser ? 'justify-start' : 'justify-start')}>
-      <div className="flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">
+    <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : 'justify-start')}>
+      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2' : 'order-1')}>
         {isUser ? 'ED' : <GrokIcon />}
       </div>
-      <div className={cn('flex-1 pt-0.5')}>
-        <p className="font-semibold">{isUser ? 'You' : 'Grok'}</p>
+      <div className={cn('flex-1 pt-0.5', isUser ? 'order-1' : 'order-2')}>
+        <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
         <article className="prose prose-sm dark:prose-invert max-w-none break-words">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </article>
@@ -39,13 +39,13 @@ export function ChatMessage({ message }: { message: Message }) {
             </div>
         )}
          {isUser && (
-            <div className="mt-2 flex items-center gap-2 text-gray-500">
+            <div className="mt-2 flex items-center gap-2 text-gray-500 justify-end">
                 <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
             </div>
         )}
         {url && (
-            <div className="mt-2">
+            <div className={cn("mt-2", isUser ? 'text-right' : 'text-left')}>
                 <Button variant="outline" size="sm" asChild>
                     <Link href={url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 size-4" />
