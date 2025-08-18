@@ -20,14 +20,16 @@ export function ChatMessage({ message }: { message: Message }) {
 
   return (
     <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : 'justify-start')}>
-      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2 bg-blue-500 text-white' : 'order-1')}>
+      <div className={cn("flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm", isUser ? 'order-2 bg-blue-500 text-white' : 'order-1 bg-black text-white')}>
         {isUser ? 'You' : <GrokIcon />}
       </div>
       <div className={cn('flex-1 pt-0.5', isUser ? 'order-1 text-right' : 'order-2 text-left')}>
         <p className={cn("font-semibold", isUser ? 'text-right' : 'text-left')}>{isUser ? 'You' : 'Grok'}</p>
-        <article className="prose prose-sm dark:prose-invert max-w-none break-words">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-        </article>
+        <div className={cn('p-4 rounded-lg mt-1', isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-black')}>
+          <article className="prose prose-sm dark:prose-invert max-w-none break-words text-current">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          </article>
+        </div>
         {!isUser && (
             <div className="mt-2 flex items-center gap-2 text-gray-500">
                 <Button variant="ghost" size="icon" className="h-8 w-8"><RefreshCw className="size-4" /></Button>
