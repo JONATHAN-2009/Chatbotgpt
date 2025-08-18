@@ -14,13 +14,13 @@ export function ChatMessage({ message }: { message: Message }) {
   return (
     <div className={cn('flex items-start gap-4', isUser ? 'justify-end' : '')}>
       {!isUser && (
-        <div className="flex-shrink-0 size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-          <Bot className="size-5" />
+        <div className="flex-shrink-0 size-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md">
+          <Bot className="size-6" />
         </div>
       )}
       <div
         className={cn(
-          'p-4 rounded-lg max-w-xl',
+          'p-4 rounded-xl max-w-xl shadow-md',
           isUser
             ? 'bg-primary text-primary-foreground'
             : 'bg-card'
@@ -41,8 +41,8 @@ export function ChatMessage({ message }: { message: Message }) {
         )}
       </div>
       {isUser && (
-        <div className="flex-shrink-0 size-8 rounded-full bg-muted flex items-center justify-center">
-          <User className="size-5" />
+        <div className="flex-shrink-0 size-10 rounded-full bg-muted flex items-center justify-center shadow-md">
+          <User className="size-6" />
         </div>
       )}
     </div>

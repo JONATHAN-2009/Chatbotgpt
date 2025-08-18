@@ -183,7 +183,6 @@ function ChatPageContent() {
 
   const onSelectPrompt = (prompt: string) => {
     setInput(prompt);
-    // Use a timeout to allow the input to update before submitting the form
     setTimeout(() => {
         inputRef.current?.focus();
         formRef.current?.requestSubmit();
@@ -192,10 +191,12 @@ function ChatPageContent() {
 
   return (
     <div className="flex h-[100svh]">
-      <Sidebar className="w-full max-w-xs" collapsible="offcanvas">
+      <Sidebar className="w-full max-w-xs" collapsible="icon">
         <SidebarHeader>
           <div className="flex items-center gap-2">
-              <Bot className="size-6 text-primary" />
+              <div className='p-2 bg-primary/20 rounded-lg'>
+                <Bot className="size-6 text-primary" />
+              </div>
               <h1 className="text-lg font-semibold">GroqChat</h1>
           </div>
         </SidebarHeader>
@@ -227,7 +228,7 @@ function ChatPageContent() {
               <div className='p-2 rounded-full bg-muted'>
                   <User className="size-6" />
               </div>
-              <span>User</span>
+              <span className='group-data-[collapsible=icon]:hidden'>User</span>
           </div>
         </SidebarFooter>
       </Sidebar>
@@ -240,9 +241,9 @@ function ChatPageContent() {
         </header>
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4">
+            <div className="p-4 md:p-6">
               {activeConversation && activeConversation.messages.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {activeConversation.messages.map(message => (
                     <ChatMessage key={message.id} message={message} />
                   ))}
@@ -260,7 +261,7 @@ function ChatPageContent() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Message GroqChat..."
-              className="pr-16 min-h-[60px]"
+              className="pr-16 min-h-[60px] rounded-full"
               onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -268,7 +269,7 @@ function ChatPageContent() {
                   }
               }}
             />
-            <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={isLoading || !input.trim()} id="chat-form-submit">
+            <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full" disabled={isLoading || !input.trim()} id="chat-form-submit">
               <Send className="size-5" />
             </Button>
           </form>
