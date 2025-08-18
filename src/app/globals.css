@@ -67,21 +67,39 @@
     @apply my-4;
   }
   .prose h1, .prose h2, .prose h3, .prose h4 {
-    @apply my-4;
+    @apply my-4 font-semibold;
   }
-  .prose ul, .prose ol {
-    @apply my-4;
+  .prose ul {
+    @apply my-4 list-disc pl-6;
+  }
+  .prose ol {
+    @apply my-4 list-decimal pl-6;
+  }
+  .prose li {
+    @apply my-2;
   }
   .prose pre {
-    @apply bg-muted rounded-md p-4 text-sm text-foreground overflow-x-auto my-4;
+    @apply bg-gray-900 text-white rounded-md p-4 text-sm overflow-x-auto my-4;
   }
   .prose code {
     @apply px-1 py-0.5 bg-muted rounded-md font-mono text-sm;
   }
   .prose pre code {
-    @apply bg-transparent p-0;
+    @apply bg-transparent p-0 text-white;
   }
   .prose a {
     @apply text-primary hover:underline;
+  }
+  .prose blockquote {
+    @apply my-4 border-l-4 border-muted-foreground pl-4 italic text-muted-foreground;
+  }
+  .prose table {
+    @apply my-4 w-full border-collapse;
+  }
+  .prose th, .prose td {
+    @apply border border-border px-4 py-2;
+  }
+  .prose thead {
+    @apply bg-muted;
   }
 }
