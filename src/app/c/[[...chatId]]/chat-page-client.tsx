@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -6,10 +7,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask, MessageSquare, Compass, Code, Upload, Star, MoreHorizontal, ThumbsUp, ThumbsDown, RefreshCw, Copy, BrainCircuit } from 'lucide-react';
+import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Compass, Upload, Star, MoreHorizontal } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { nanoid } from 'nanoid';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from '@/components/chat-message';
 
 const GrokLogo = ({ className }: { className?: string }) => (
@@ -30,7 +30,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
              <div className="relative w-full bg-white rounded-xl shadow-lg p-1 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <div className="flex items-center">
@@ -46,7 +46,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             placeholder="Comment Grok peut-il aider ?"
-                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-sm text-black p-2 mx-1 min-h-[36px]"
+                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-sm text-black p-2 mx-1 min-h-[40px]"
                              onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -61,7 +61,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                     </div>
                 </form>
             </div>
-             <div className="flex items-center justify-center space-x-2 mt-2">
+             <div className="flex items-center justify-center space-x-2 mt-4">
                 <Button variant="outline" size="sm" className="text-xs h-7">Automatique</Button>
                 <Button variant="outline" size="sm" className="text-xs h-7">DeepSearch</Button>
                 <Button variant="outline" size="sm" className="text-xs h-7">Dernières nouvelles</Button>
@@ -123,14 +123,16 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
   
     if (!hasMessages) {
         return (
-            <main className="flex-1 flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center justify-center text-center">
-                    <GrokLogo className="w-[50px] h-[50px] text-black"/>
-                    <h1 className="text-3xl font-bold mt-4">Grok</h1>
-                    <div className="mt-8 w-full">
-                        <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+            <main className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center justify-center text-center">
+                        <GrokLogo className="w-[50px] h-[50px] text-black"/>
+                        <h1 className="text-3xl font-bold mt-4">Grok</h1>
                     </div>
                 </div>
+                <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
+                   <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                </footer>
             </main>
         );
     }
@@ -138,7 +140,7 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
     return (
         <div className="flex-1 flex flex-col">
           <main className="flex-1 overflow-y-auto p-4">
-              <div className="max-w-3xl mx-auto space-y-6">
+              <div className="max-w-3xl mx-auto space-y-8">
                   {activeConversation.messages.map((message) => (
                       <ChatMessage key={message.id} message={message} />
                   ))}
@@ -173,16 +175,13 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   }, [router, conversations]);
 
   React.useEffect(() => {
-    // If a chatId is present in the URL, ensure it's the active one.
     if (chatId) {
-      // If the conversation doesn't exist, create it.
       if (!conversations.some(c => c.id === chatId)) {
         const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0,4)}`, messages: [] };
         setConversations(prev => [...prev, newConversation]);
       }
       setActiveConversationId(chatId);
     } else if (!activeConversationId && conversations.length === 0) {
-      // If there's no active chat and no chats at all, create a new one.
       handleNewChat();
     }
   }, [chatId, conversations, activeConversationId, handleNewChat]);
@@ -233,37 +232,38 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        
+        // Handle cases where multiple 'data: ' events are in one chunk
+        const parts = buffer.split('data: ');
+        buffer = parts.pop() || ''; // The last part might be incomplete
 
-        for (const line of lines) {
-            if (line.startsWith('data: ')) {
-                const jsonStr = line.substring(6);
-                if (jsonStr === '[DONE]') {
-                    break;
-                }
-                try {
-                  const chunk = JSON.parse(jsonStr);
-                  const content = chunk.choices[0]?.delta?.content || '';
-                  if (content) {
-                    fullResponse += content;
-                    setConversations(prev =>
-                      prev.map(c =>
-                        c.id === activeConversationId
-                          ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                          : c
-                      )
-                    );
-                  }
-                } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr, error);
-                }
+        for (const part of parts) {
+            if (part.trim() === '') continue;
+            const jsonStr = part.replace(/\n\n$/, ''); // Remove trailing newlines
+            if (jsonStr === '[DONE]') {
+                break;
+            }
+            try {
+              const chunk = JSON.parse(jsonStr);
+              const content = chunk.choices[0]?.delta?.content || '';
+              if (content) {
+                fullResponse += content;
+                setConversations(prev =>
+                  prev.map(c =>
+                    c.id === activeConversationId
+                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                      : c
+                  )
+                );
+              }
+            } catch (error) {
+                console.error("Failed to parse chunk:", jsonStr);
             }
         }
       }
       
       if (buffer.startsWith('data: ')) {
-        const jsonStr = buffer.substring(6);
+        const jsonStr = buffer.substring(6).replace(/\n\n$/, '');
         if (jsonStr && jsonStr !== '[DONE]') {
           try {
             const chunk = JSON.parse(jsonStr);
@@ -272,7 +272,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                 fullResponse += content;
             }
           } catch (e) {
-             console.error("Failed to parse final chunk:", jsonStr, e);
+             console.error("Failed to parse final chunk:", jsonStr);
           }
         }
       }
@@ -350,18 +350,26 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <header className="p-4 flex justify-end items-center h-14">
-                    {/* Placeholder for header content */}
+                <header className="p-2 flex justify-end items-center border-b border-gray-200 h-14">
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
+                    <Button variant="outline" size="sm" className="h-8">
+                        <Upload className="mr-2 size-4" />
+                        Partager
+                    </Button>
+                  </div>
                 </header>
-                <main className="flex-1 flex flex-col items-center justify-center">
+                <main className="flex-1 flex flex-col items-center justify-end pb-8">
                   <div className="flex flex-col items-center justify-center text-center">
                       <GrokLogo className="w-[50px] h-[50px] text-black" />
                       <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
-                      <div className="mt-8 w-full px-4">
-                          <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                      </div>
                   </div>
                 </main>
+                 <footer className="p-4 bg-transparent">
+                    <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                 </footer>
             </div>
         </div>
     );
