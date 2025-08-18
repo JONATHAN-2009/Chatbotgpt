@@ -1,8 +1,24 @@
 import Groq from 'groq-sdk';
+import { Stream } from 'groq-sdk/streaming';
 
 export const runtime = 'edge';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+function toDataStream(stream: Stream<Groq.Chat.CompletionChunk>) {
+    const encoder = new TextEncoder();
+    const readableStream = new ReadableStream({
+        async start(controller) {
+            for await (const chunk of stream) {
+                const data = `data: ${JSON.stringify(chunk)}\n\n`;
+                controller.enqueue(encoder.encode(data));
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+        },
+    });
+    return readableStream;
+}
 
 export async function POST(req: Request) {
   try {
@@ -25,7 +41,14 @@ export async function POST(req: Request) {
       top_p: 1,
     });
 
-    return new Response(stream.toReadableStream());
+    const dataStream = toDataStream(stream);
+
+    return new Response(dataStream, {
+        headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+        }
+    });
 
   } catch (error) {
     console.error('[CHAT_API_ERROR]', error);

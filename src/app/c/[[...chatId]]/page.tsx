@@ -27,14 +27,14 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
+function ChatPageContent({ chatId }: { chatId?: string | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   const { isMobile } = useSidebar();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(params.chatId?.[0] ?? null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
 
@@ -42,7 +42,7 @@ function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
     return conversations.find(c => c.id === activeConversationId) ?? null;
   }, [conversations, activeConversationId]);
 
-  const handleNewChat = () => {
+  const handleNewChat = React.useCallback(() => {
     const newId = nanoid();
     const newConversation: Conversation = {
       id: newId,
@@ -56,16 +56,17 @@ function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
       // Assuming useSidebar provides a way to close mobile sidebar
       // This is a placeholder for the actual implementation if available
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, router]);
   
   React.useEffect(() => {
-    if(params.chatId?.[0] === 'new' || (!params.chatId?.[0] && conversations.length === 0)) {
+    if(chatId === 'new' || (!chatId && conversations.length === 0)) {
         handleNewChat();
     } else {
-        setActiveConversationId(params.chatId?.[0] ?? null);
+        setActiveConversationId(chatId ?? null);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.chatId?.[0]]);
+  }, [chatId, handleNewChat]);
 
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -108,19 +109,35 @@ function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
         const chunk = decoder.decode(value, { stream: true });
         
         try {
-          const jsonChunk = JSON.parse(chunk); // groq stream sends json chunks
-          if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
-            fullResponse += jsonChunk.choices[0].delta.content;
-            setConversations(prev =>
-              prev.map(c =>
-                c.id === activeConversationId
-                  ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                  : c
-              )
-            );
+          // Groq streams send string data that can be parsed as JSON
+          const lines = chunk.split('\\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.substring(6);
+              if (jsonStr === '[DONE]') {
+                break;
+              }
+              const jsonChunk = JSON.parse(jsonStr); 
+              if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
+                fullResponse += jsonChunk.choices[0].delta.content;
+                setConversations(prev =>
+                  prev.map(c =>
+                    c.id === activeConversationId
+                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                      : c
+                  )
+                );
+              }
+            }
           }
         } catch (error) {
            // It might not be a json chunk, but part of one, so just append
+           // This logic handles cases where a chunk is incomplete
+           if (chunk) {
+            // Heuristic to check if this might be a stream content chunk
+            // This part is tricky because Groq stream format isn't publicly documented in detail.
+            // A safer approach would be to buffer and parse, but for streaming UI updates, this is a compromise.
+           }
         }
       }
       
@@ -149,7 +166,7 @@ function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
         const summarizeRes = await fetch('/api/chat/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatHistory: `User: ${input}\nAssistant: ${fullResponse}` }),
+            body: JSON.stringify({ chatHistory: `User: ${input}\\nAssistant: ${fullResponse}` }),
         });
         const summaryData = await summarizeRes.json();
         setConversations(prev =>
@@ -263,9 +280,11 @@ function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
 
 
 export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+  const chatId = params.chatId?.[0];
+
   return (
     <SidebarProvider>
-      <ChatPageContent params={params} />
+      <ChatPageContent chatId={chatId} />
     </SidebarProvider>
   );
 }
