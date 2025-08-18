@@ -10,6 +10,7 @@ import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, B
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { nanoid } from 'nanoid';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const GrokLogo = () => (
     <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
@@ -37,7 +38,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         placeholder="Que voulez-vous savoir ?"
-                        className="bg-transparent border-none focus:ring-0 resize-none w-full text-lg text-black p-0"
+                        className="bg-transparent border-none focus:ring-0 resize-none w-full text-lg text-black p-0 min-h-[60px]"
                          onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
@@ -70,13 +71,90 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     );
 };
 
+const ChatSidebar = ({ conversations, activeConversationId, handleNewChat }: { conversations: Conversation[], activeConversationId: string | null, handleNewChat: () => void }) => {
+    const router = useRouter();
+
+    return (
+        <aside className="w-[280px] bg-white border-r border-gray-200 flex flex-col">
+            <div className="p-4 flex items-center justify-between border-b border-gray-200">
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="rounded-full"><GrokLogo/></Button>
+                    <h2 className="font-semibold">Grok</h2>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleNewChat}><SquarePen className="size-5" /></Button>
+            </div>
+            <div className="p-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-500" />
+                    <input type="text" placeholder="Rechercher" className="w-full bg-gray-100 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500" />
+                </div>
+            </div>
+            <ScrollArea className="flex-1">
+                <div className="p-4 space-y-2">
+                    {conversations.map(convo => (
+                        <Button 
+                            key={convo.id} 
+                            variant={convo.id === activeConversationId ? "secondary" : "ghost"}
+                            className="w-full justify-start"
+                            onClick={() => router.push(`/c/${convo.id}`)}
+                        >
+                            {convo.title}
+                        </Button>
+                    ))}
+                </div>
+            </ScrollArea>
+        </aside>
+    );
+};
+
+const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeConversation?.messages]);
+
+  const hasMessages = activeConversation && activeConversation.messages.length > 0;
+  
+    if (!hasMessages) {
+        return (
+            <main className="flex-1 flex flex-col items-center justify-center">
+                <div className="flex flex-col items-center justify-center text-center">
+                    <GrokLogo />
+                    <h1 className="text-4xl font-bold mt-4">Grok</h1>
+                    <div className="mt-12 w-full">
+                        <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                    </div>
+                </div>
+            </main>
+        );
+    }
+    
+    return (
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-3xl mx-auto space-y-8">
+                  {activeConversation.messages.map((message) => (
+                      <ChatMessage key={message.id} message={message} />
+                  ))}
+                  <div ref={messagesEndRef} />
+              </div>
+          </main>
+          <footer className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-200">
+            <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+          </footer>
+        </div>
+    );
+}
+
+
 export function ChatPageClient({ chatId }: { chatId?: string }) {
   const router = useRouter();
   
   const { toast } = useToast();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
 
@@ -94,17 +172,13 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   React.useEffect(() => {
     if (chatId) {
-      setActiveConversationId(chatId);
-      if (!conversations.some(c => c.id === chatId)) {
-        const newConversation: Conversation = {
-          id: chatId,
-          title: `Chat ${chatId.substring(0, 4)}`,
-          messages: [],
-        };
-        setConversations(prev => [...prev, newConversation]);
-      }
+        if (!conversations.some(c => c.id === chatId)) {
+             const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0,4)}`, messages: [] };
+             setConversations(prev => [...prev, newConversation]);
+        }
+        setActiveConversationId(chatId);
     } else if (conversations.length === 0) {
-      handleNewChat();
+        handleNewChat();
     }
   }, [chatId, conversations, handleNewChat]);
   
@@ -164,24 +238,16 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     break;
                 }
                 try {
-                    // Handle cases where multiple JSON objects are received in one chunk
-                    const cleanedJsonStr = jsonStr.replace(/}{/g, '}\n{');
-                    const jsonChunks = cleanedJsonStr.split('\n');
-                    
-                    for (const chunk of jsonChunks) {
-                        if (chunk.trim()) {
-                            const jsonChunk = JSON.parse(chunk); 
-                            if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
-                                fullResponse += jsonChunk.choices[0].delta.content;
-                                setConversations(prev =>
-                                  prev.map(c =>
-                                    c.id === activeConversationId
-                                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                                      : c
-                                  )
-                                );
-                            }
-                        }
+                    const jsonChunk = JSON.parse(jsonStr); 
+                    if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
+                        fullResponse += jsonChunk.choices[0].delta.content;
+                        setConversations(prev =>
+                          prev.map(c =>
+                            c.id === activeConversationId
+                              ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                              : c
+                          )
+                        );
                     }
                 } catch (error) {
                     console.error("Failed to parse chunk:", jsonStr, error);
@@ -192,23 +258,31 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       
       const finalAssistantMessage: Message = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
 
-      const enhanceRes = await fetch('/api/chat/enhance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
-      });
+      try {
+        const enhanceRes = await fetch('/api/chat/enhance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
+        });
 
-      if (enhanceRes.ok) {
-        const enhancedData = await enhanceRes.json();
-        finalAssistantMessage.content = enhancedData.enhancedResponse;
-        finalAssistantMessage.url = enhancedData.suggestedUrl;
-      } else {
-        const errorData = await enhanceRes.json();
-        console.error("Failed to enhance response", errorData.error);
-        toast({
-          variant: "destructive",
-          title: "Failed to enhance response",
-          description: errorData.error,
+        if (enhanceRes.ok) {
+          const enhancedData = await enhanceRes.json();
+          finalAssistantMessage.content = enhancedData.enhancedResponse;
+          finalAssistantMessage.url = enhancedData.suggestedUrl;
+        } else {
+          const errorData = await enhanceRes.json();
+          console.error("Failed to enhance response", errorData.error);
+          toast({
+            variant: "destructive",
+            title: "Failed to enhance response",
+            description: errorData.error,
+          });
+        }
+      } catch (error) {
+         toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: `Failed to enhance response: ${error instanceof Error ? error.message : 'Unknown error'}`,
         });
       }
       
@@ -240,7 +314,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to get response from AI. Please check your API key and try again.',
+        description: `Failed to get response from AI. Please check your API key and try again. ${error instanceof Error ? error.message : ''}`,
       });
       setConversations(prev => prev.map(c => c.id === activeConversationId ? {...c, messages: c.messages.filter(m => m.id !== assistantPlaceholder.id)} : c));
     } finally {
@@ -251,42 +325,56 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   const hasMessages = activeConversation && activeConversation.messages.length > 0;
 
   // This will be the chat view, to be implemented when user provides the design
-  if (hasMessages) {
+  if (!hasMessages) {
     return (
-        <div>Messages view to be implemented</div>
-    )
+        <div className="flex h-screen bg-[#F9F9F9] text-foreground">
+            <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
+                <Button variant="ghost" size="icon"><GrokLogo /></Button>
+                <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
+                <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><History className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><Bot className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><Settings className="size-5 text-gray-600" /></Button>
+            </aside>
+            <div className="flex-1 flex flex-col">
+                <header className="p-4 flex justify-end items-center">
+                    <Button variant="outline" className="rounded-full border-gray-300">
+                        <VenetianMask className="mr-2 size-4 text-gray-600" />
+                        Privé
+                    </Button>
+                </header>
+                <main className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center justify-center text-center">
+                      <GrokLogo />
+                      <h1 className="text-4xl font-bold mt-4">Grok</h1>
+                      <div className="mt-12 w-full">
+                          <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                      </div>
+                  </div>
+                </main>
+            </div>
+        </div>
+    );
   }
 
-  // This is the initial empty view from the image
   return (
-      <div className="flex h-screen bg-[#F9F9F9] text-foreground">
-          <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
-              <Button variant="ghost" size="icon"><GrokLogo /></Button>
-              <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
-              <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><History className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><Bot className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><Settings className="size-5 text-gray-600" /></Button>
-          </aside>
-          <div className="flex-1 flex flex-col">
-              <header className="p-4 flex justify-end items-center">
-                  <Button variant="outline" className="rounded-full border-gray-300">
-                      <VenetianMask className="mr-2 size-4 text-gray-600" />
-                      Privé
-                  </Button>
-              </header>
-              <main className="flex-1 flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center justify-center text-center">
-                    <GrokLogo />
-                    <h1 className="text-4xl font-bold mt-4">Grok</h1>
-                    <div className="mt-12 w-full">
-                        <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                    </div>
-                </div>
-              </main>
-          </div>
+    <div className="flex h-screen bg-gray-50 text-foreground">
+      <ChatSidebar conversations={conversations} activeConversationId={activeConversationId} handleNewChat={handleNewChat} />
+      <div className="flex-1 flex flex-col">
+        <header className="p-4 flex justify-end items-center border-b border-gray-200">
+          <Button variant="outline" className="rounded-full border-gray-300">
+            <VenetianMask className="mr-2 size-4 text-gray-600" />
+            Privé
+          </Button>
+        </header>
+        <ChatArea
+          activeConversation={activeConversation}
+          input={input}
+          setInput={setInput}
+          handleSendMessage={handleSendMessage}
+          isLoading={isLoading}
+        />
       </div>
+    </div>
   );
 }
-
-    
