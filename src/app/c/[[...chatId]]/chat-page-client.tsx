@@ -71,10 +71,8 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
   const lastMessageIsUser = activeConversation?.messages[activeConversation.messages.length - 1]?.role === 'user';
 
   React.useEffect(() => {
-    if (lastMessageIsUser) {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [activeConversation?.messages, lastMessageIsUser]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeConversation?.messages]);
 
   return (
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -162,9 +160,9 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     setConversations(prev => prev.map(c => c.id === activeConversationId ? { ...c, messages: [...updatedMessages, assistantPlaceholder] } : c));
 
     try {
-      // Add a system message to enforce the language
+      // Add a system message to enforce language and markdown formatting
       const messagesForApi = [
-          { role: 'system', content: "Valio foana amin'ny fiteny farany nampiasain'ny mpampiasa." },
+          { role: 'system', content: "Valio foana amin'ny fiteny farany nampiasain'ny mpampiasa. Ampiasao foana ny format Markdown, mitovy amin'ny fampiasan'ny ChatGPT, indrindra amin'ny kaody (ohatra, ```python...```)." },
           ...updatedMessages.map(({role, content}) => ({role, content}))
       ];
       
