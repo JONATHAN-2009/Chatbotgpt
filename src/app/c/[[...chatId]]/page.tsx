@@ -3,7 +3,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -21,21 +21,18 @@ import {
 } from '@/components/ui/sidebar';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { Bot, Plus, Send, User } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent() {
+function ChatPageContent({ chatId }: { chatId?: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const chatId = params.chatId?.[0];
 
   const { toast } = useToast();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
@@ -57,21 +54,19 @@ function ChatPageContent() {
     setActiveConversationId(newId);
     router.push(`/c/${newId}`);
     if (isMobile) {
-      // Assuming useSidebar provides a way to close mobile sidebar
-      // This is a placeholder for the actual implementation if available
+      setOpenMobile(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile, router]);
-  
+  }, [isMobile, router, setOpenMobile]);
+
   React.useEffect(() => {
-    if(chatId === 'new' || (!chatId && conversations.length === 0)) {
+    if (chatId === 'new' || (!chatId && conversations.length === 0)) {
         handleNewChat();
     } else {
         setActiveConversationId(chatId ?? null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatId, handleNewChat]);
+  }, [chatId, conversations.length, handleNewChat]);
 
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -113,7 +108,6 @@ function ChatPageContent() {
         const chunk = decoder.decode(value, { stream: true });
         
         try {
-          // Groq streams send string data that can be parsed as JSON
           const lines = chunk.split('\n');
           for (const line of lines) {
             if (line.startsWith('data: ')) {
@@ -135,19 +129,13 @@ function ChatPageContent() {
             }
           }
         } catch (error) {
-           // It might not be a json chunk, but part of one, so just append
-           // This logic handles cases where a chunk is incomplete
            if (chunk) {
-            // Heuristic to check if this might be a stream content chunk
-            // This part is tricky because Groq stream format isn't publicly documented in detail.
-            // A safer approach would be to buffer and parse, but for streaming UI updates, this is a compromise.
            }
         }
       }
       
       const finalAssistantMessage = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
 
-      // Enhance response
       const enhanceRes = await fetch('/api/chat/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -165,7 +153,6 @@ function ChatPageContent() {
         )
       );
 
-      // Summarize for title if it's a new chat
       if (currentConversation.messages.length === 0) {
         const summarizeRes = await fetch('/api/chat/summarize', {
             method: 'POST',
@@ -251,7 +238,6 @@ function ChatPageContent() {
               ) : (
                 <EmptyScreen onSelect={(prompt) => {
                   setInput(prompt);
-                  // a bit of a hack to submit form
                   setTimeout(() => document.getElementById('chat-form-submit')?.click(), 0);
                 }}/>
               )}
@@ -259,7 +245,7 @@ function ChatPageContent() {
           </ScrollArea>
         </div>
         <div className="p-4 border-t bg-background">
-          <form onSubmit={handleSendMessage} className="relative">
+          <form ref={formRef} onSubmit={handleSendMessage} className="relative">
             <Textarea
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -268,7 +254,7 @@ function ChatPageContent() {
               onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      handleSendMessage(e as any);
+                      formRef.current?.requestSubmit();
                   }
               }}
             />
@@ -283,10 +269,12 @@ function ChatPageContent() {
 }
 
 
-export default function ChatPage() {
+export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+  const chatId = params.chatId?.[0];
+
   return (
     <SidebarProvider>
-      <ChatPageContent />
+      <ChatPageContent chatId={chatId} />
     </SidebarProvider>
   );
 }
