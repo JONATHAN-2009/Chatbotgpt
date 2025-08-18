@@ -76,7 +76,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   const { toast } = useToast();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
 
@@ -94,15 +94,19 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   React.useEffect(() => {
     if (chatId) {
-        if (!conversations.some(c => c.id === chatId)) {
-            const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0, 4)}`, messages: [] };
-            setConversations(prev => [...prev, newConversation]);
-        }
-        setActiveConversationId(chatId);
-    } else if (!activeConversationId && conversations.length === 0) {
-        handleNewChat();
+      setActiveConversationId(chatId);
+      if (!conversations.some(c => c.id === chatId)) {
+        const newConversation: Conversation = {
+          id: chatId,
+          title: `Chat ${chatId.substring(0, 4)}`,
+          messages: [],
+        };
+        setConversations(prev => [...prev, newConversation]);
+      }
+    } else if (conversations.length === 0) {
+      handleNewChat();
     }
-  }, [chatId, conversations, activeConversationId, handleNewChat]);
+  }, [chatId, conversations, handleNewChat]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -160,19 +164,27 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     break;
                 }
                 try {
-                    const jsonChunk = JSON.parse(jsonStr); 
-                    if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
-                        fullResponse += jsonChunk.choices[0].delta.content;
-                        setConversations(prev =>
-                          prev.map(c =>
-                            c.id === activeConversationId
-                              ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                              : c
-                          )
-                        );
+                    // Handle cases where multiple JSON objects are received in one chunk
+                    const cleanedJsonStr = jsonStr.replace(/}{/g, '}\n{');
+                    const jsonChunks = cleanedJsonStr.split('\n');
+                    
+                    for (const chunk of jsonChunks) {
+                        if (chunk.trim()) {
+                            const jsonChunk = JSON.parse(chunk); 
+                            if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
+                                fullResponse += jsonChunk.choices[0].delta.content;
+                                setConversations(prev =>
+                                  prev.map(c =>
+                                    c.id === activeConversationId
+                                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                                      : c
+                                  )
+                                );
+                            }
+                        }
                     }
                 } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr);
+                    console.error("Failed to parse chunk:", jsonStr, error);
                 }
             }
         }
@@ -238,41 +250,16 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   
   const hasMessages = activeConversation && activeConversation.messages.length > 0;
 
+  // This will be the chat view, to be implemented when user provides the design
   if (hasMessages) {
     return (
-        <div className="flex h-screen bg-[#F9F9F9] text-foreground">
-          <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
-              <Button variant="ghost" size="icon"><GrokLogo /></Button>
-              <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
-              <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><History className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><Bot className="size-5 text-gray-600" /></Button>
-              <Button variant="ghost" size="icon"><Settings className="size-5 text-gray-600" /></Button>
-          </aside>
-            <div className="flex flex-col flex-1">
-                <header className="p-4 flex justify-end items-center">
-                    <Button variant="outline" className="rounded-full border-gray-300">
-                        <VenetianMask className="mr-2 size-4 text-gray-600" />
-                        Privé
-                    </Button>
-                </header>
-                <main className="flex-1 overflow-y-auto p-6">
-                    <div className="max-w-4xl mx-auto space-y-8">
-                        {activeConversation.messages.map(message => (
-                            <ChatMessage key={message.id} message={message} />
-                        ))}
-                    </div>
-                </main>
-                <footer className="p-4 bg-[#F9F9F9] flex flex-col items-center">
-                    <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                </footer>
-            </div>
-        </div>
+        <div>Messages view to be implemented</div>
     )
   }
 
+  // This is the initial empty view from the image
   return (
-      <div className="flex h-screen bg-[#F9F9F9]">
+      <div className="flex h-screen bg-[#F9F9F9] text-foreground">
           <aside className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
               <Button variant="ghost" size="icon"><GrokLogo /></Button>
               <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
