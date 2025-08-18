@@ -29,7 +29,7 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
     )
 
     return (
-        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4">
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4 mb-4">
              <div className="relative w-full bg-white rounded-xl shadow-lg p-1 border border-gray-200">
                 <form ref={formRef} onSubmit={handleSendMessage}>
                     <div className="flex items-center">
@@ -59,12 +59,6 @@ const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: s
                         </Button>
                     </div>
                 </form>
-            </div>
-             <div className="flex items-center justify-center space-x-2 mt-4">
-                <Button variant="outline" size="sm" className="text-xs h-7">Automatique</Button>
-                <Button variant="outline" size="sm" className="text-xs h-7">DeepSearch</Button>
-                <Button variant="outline" size="sm" className="text-xs h-7">Dernières nouvelles</Button>
-                <Button variant="outline" size="sm" className="text-xs h-7">Modes</Button>
             </div>
         </div>
     );
@@ -232,50 +226,39 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
         
-        // Handle cases where multiple 'data: ' events are in one chunk
-        const parts = buffer.split('data: ');
-        buffer = parts.pop() || ''; // The last part might be incomplete
+        let boundary = buffer.indexOf('\n\n');
+        while(boundary !== -1) {
+            const chunkString = buffer.substring(0, boundary);
+            buffer = buffer.substring(boundary + 2);
 
-        for (const part of parts) {
-            if (part.trim() === '') continue;
-            const jsonStr = part.replace(/\n\n$/, ''); // Remove trailing newlines
-            if (jsonStr === '[DONE]') {
-                break;
+            if (chunkString.startsWith('data: ')) {
+                const jsonStr = chunkString.substring(6);
+                if (jsonStr.trim() === '[DONE]') {
+                    break;
+                }
+                if (jsonStr) {
+                    try {
+                        const chunk = JSON.parse(jsonStr);
+                        const content = chunk.choices[0]?.delta?.content || '';
+                        if (content) {
+                            fullResponse += content;
+                            setConversations(prev =>
+                                prev.map(c =>
+                                    c.id === activeConversationId
+                                        ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                                        : c
+                                )
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Failed to parse chunk:", jsonStr, error);
+                    }
+                }
             }
-            try {
-              const chunk = JSON.parse(jsonStr);
-              const content = chunk.choices[0]?.delta?.content || '';
-              if (content) {
-                fullResponse += content;
-                setConversations(prev =>
-                  prev.map(c =>
-                    c.id === activeConversationId
-                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                      : c
-                  )
-                );
-              }
-            } catch (error) {
-                console.error("Failed to parse chunk:", jsonStr);
-            }
+             boundary = buffer.indexOf('\n\n');
         }
       }
       
-      if (buffer.startsWith('data: ')) {
-        const jsonStr = buffer.substring(6).replace(/\n\n$/, '');
-        if (jsonStr && jsonStr !== '[DONE]') {
-          try {
-            const chunk = JSON.parse(jsonStr);
-            const content = chunk.choices[0]?.delta?.content || '';
-            if (content) {
-                fullResponse += content;
-            }
-          } catch (e) {
-             console.error("Failed to parse final chunk:", jsonStr);
-          }
-        }
-      }
-
       const finalAssistantMessage: Message = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
 
       try {
@@ -360,14 +343,14 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                     </Button>
                   </div>
                 </header>
-                <main className="flex-1 flex flex-col items-center justify-center">
-                  <div className="flex flex-col items-center justify-center text-center">
-                      <GrokLogo className="w-[50px] h-[50px] text-black" />
-                      <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
-                  </div>
-                   <div className="w-full mt-auto">
-                    <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
-                 </div>
+                <main className="flex-1 flex flex-col justify-center items-center">
+                    <div className="flex flex-col items-center justify-center text-center">
+                        <GrokLogo className="w-[50px] h-[50px] text-black" />
+                        <h1 className="text-2xl font-bold mt-4">Comment puis-je vous aider aujourd'hui ?</h1>
+                    </div>
+                    <div className="w-full mt-auto">
+                        <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                    </div>
                 </main>
             </div>
         </div>
@@ -400,5 +383,3 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     </div>
   );
 }
-
-    
