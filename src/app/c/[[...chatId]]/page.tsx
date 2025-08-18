@@ -54,16 +54,21 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
   }, [isMobile, router, setOpenMobile]);
 
   React.useEffect(() => {
-    if (initialChatId === 'new') {
+    if (initialChatId && !conversations.some(c => c.id === initialChatId)) {
+        if (initialChatId === 'new') {
+            handleNewChat();
+        } else {
+            // This could be a pre-existing chat, for now we'll just make a new one.
+            // In a real app, you'd fetch this from a database.
+            const newConversation: Conversation = { id: initialChatId, title: `Chat ${initialChatId.substring(0, 4)}`, messages: [] };
+            setConversations(prev => [...prev, newConversation]);
+            setActiveConversationId(initialChatId);
+        }
+    } else if (!initialChatId && conversations.length === 0) {
         handleNewChat();
     }
-  }, [initialChatId, handleNewChat]);
+  }, [initialChatId, conversations, handleNewChat]);
 
-  React.useEffect(() => {
-    if (pathname === '/c' && conversations.length === 0) {
-        handleNewChat();
-    }
-  }, [pathname, conversations.length, handleNewChat]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -80,6 +85,8 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
     const currentConversation = conversations.find(c => c.id === activeConversationId);
     
     if (!currentConversation) return;
+    
+    const isFirstMessage = currentConversation.messages.length === 0;
 
     const updatedMessages = [...currentConversation.messages, userInput];
     const updatedConversation = { ...currentConversation, messages: updatedMessages };
@@ -89,7 +96,7 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
     setIsLoading(true);
     
     const assistantPlaceholder: Message = { role: 'assistant', content: '', id: nanoid() };
-    setConversations(conversations.map(c => c.id === activeConversationId ? { ...c, messages: [...updatedMessages, assistantPlaceholder] } : c));
+    setConversations(prev => prev.map(c => c.id === activeConversationId ? { ...c, messages: [...updatedMessages, assistantPlaceholder] } : c));
 
     try {
       const res = await fetch('/api/chat', {
@@ -111,44 +118,48 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         
-        try {
-          const lines = chunk.split('\n');
-          for (const line of lines) {
+        const lines = chunk.split('\n');
+        for (const line of lines) {
             if (line.startsWith('data: ')) {
-              const jsonStr = line.substring(6);
-              if (jsonStr === '[DONE]') {
-                break;
-              }
-              const jsonChunk = JSON.parse(jsonStr); 
-              if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
-                fullResponse += jsonChunk.choices[0].delta.content;
-                setConversations(prev =>
-                  prev.map(c =>
-                    c.id === activeConversationId
-                      ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
-                      : c
-                  )
-                );
-              }
+                const jsonStr = line.substring(6);
+                if (jsonStr === '[DONE]') {
+                    break;
+                }
+                try {
+                    const jsonChunk = JSON.parse(jsonStr); 
+                    if(jsonChunk.choices && jsonChunk.choices[0].delta.content) {
+                        fullResponse += jsonChunk.choices[0].delta.content;
+                        setConversations(prev =>
+                          prev.map(c =>
+                            c.id === activeConversationId
+                              ? { ...c, messages: c.messages.map(m => m.id === assistantPlaceholder.id ? { ...m, content: fullResponse } : m) }
+                              : c
+                          )
+                        );
+                    }
+                } catch (error) {
+                    console.error("Failed to parse chunk:", jsonStr);
+                }
             }
-          }
-        } catch (error) {
-           if (chunk) {
-           }
         }
       }
       
-      const finalAssistantMessage = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
+      const finalAssistantMessage: Message = { role: 'assistant', content: fullResponse, id: assistantPlaceholder.id };
 
       const enhanceRes = await fetch('/api/chat/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userInput: input, groqResponse: fullResponse }),
       });
-      const enhancedData = await enhanceRes.json();
-      finalAssistantMessage.content = enhancedData.enhancedResponse;
-      finalAssistantMessage.url = enhancedData.suggestedUrl;
 
+      if (enhanceRes.ok) {
+        const enhancedData = await enhanceRes.json();
+        finalAssistantMessage.content = enhancedData.enhancedResponse;
+        finalAssistantMessage.url = enhancedData.suggestedUrl;
+      } else {
+        console.error("Failed to enhance response");
+      }
+      
       setConversations(prev =>
         prev.map(c =>
           c.id === activeConversationId
@@ -157,16 +168,20 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
         )
       );
 
-      if (currentConversation.messages.length === 0) {
+      if (isFirstMessage) {
         const summarizeRes = await fetch('/api/chat/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chatHistory: `User: ${input}\nAssistant: ${fullResponse}` }),
         });
-        const summaryData = await summarizeRes.json();
-        setConversations(prev =>
-            prev.map(c => c.id === activeConversationId ? { ...c, title: summaryData.summary } : c)
-        );
+        if(summarizeRes.ok) {
+            const summaryData = await summarizeRes.json();
+            setConversations(prev =>
+                prev.map(c => c.id === activeConversationId ? { ...c, title: summaryData.summary } : c)
+            );
+        } else {
+            console.error("Failed to summarize chat");
+        }
       }
 
     } catch (error) {
@@ -178,6 +193,7 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
       setConversations(prev => prev.map(c => c.id === activeConversationId ? {...c, messages: c.messages.filter(m => m.id !== assistantPlaceholder.id)} : c));
     } finally {
       setIsLoading(false);
+      inputRef.current?.focus();
     }
   };
 
@@ -185,7 +201,7 @@ function ChatPageContent({ chatId: initialChatId }: { chatId?: string }) {
     setInput(prompt);
     setTimeout(() => {
         inputRef.current?.focus();
-        formRef.current?.requestSubmit();
+        formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     }, 0);
   }
 
@@ -302,3 +318,5 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
     </SidebarProvider>
   );
 }
+
+    
