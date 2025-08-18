@@ -76,7 +76,7 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
             </div>
         </main>
         <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
-            <div className="w-full max-w-2xl mx-auto">
+            <div className="w-full max-w-4xl mx-auto">
                 <ChatInput
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -282,7 +282,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                         <GrokLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
-                    <div className="w-full max-w-2xl mt-auto p-4">
+                    <div className="w-full max-w-4xl mt-auto p-4">
                       <ChatInput
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
