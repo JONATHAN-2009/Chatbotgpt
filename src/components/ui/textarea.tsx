@@ -1,10 +1,9 @@
 import * as React from 'react';
 
 import {cn} from '@/lib/utils';
-import { useLayoutEffect } from 'react';
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(
-  ({className, value, ...props}, ref) => {
+  ({className, ...props}, ref) => {
     
     const textAreaRef = React.useRef<HTMLTextAreaElement | null>(null);
 
@@ -17,13 +16,13 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
         }
     };
 
-    useLayoutEffect(() => {
+    React.useLayoutEffect(() => {
         const textarea = textAreaRef.current;
         if (textarea) {
             textarea.style.height = 'auto'; // Reset height
             textarea.style.height = `${textarea.scrollHeight}px`; // Set to scroll height
         }
-    }, [value]);
+    }, [props.value]);
 
     return (
       <textarea
@@ -32,7 +31,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
           className
         )}
         ref={composedRef}
-        value={value}
         {...props}
       />
     );

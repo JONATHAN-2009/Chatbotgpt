@@ -1,7 +1,7 @@
 'use client';
 import type { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Bot, User, ExternalLink } from 'lucide-react';
+import { Bot, User, ExternalLink, RefreshCw, Copy, ThumbsUp, ThumbsDown, MoreHorizontal, SquarePen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from './ui/button';
@@ -20,14 +20,30 @@ export function ChatMessage({ message }: { message: Message }) {
 
   return (
     <div className={cn('flex items-start gap-4')}>
-      <div className="flex-shrink-0 size-8 rounded-full bg-muted flex items-center justify-center">
-        {isUser ? <User className="size-5" /> : <GrokIcon />}
+      <div className="flex-shrink-0 size-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-sm">
+        {isUser ? 'ED' : <GrokIcon />}
       </div>
       <div className={cn('flex-1 pt-0.5')}>
         <p className="font-semibold">{isUser ? 'You' : 'Grok'}</p>
         <article className="prose prose-sm dark:prose-invert max-w-none break-words">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </article>
+        {!isUser && (
+            <div className="mt-2 flex items-center gap-2 text-gray-500">
+                <Button variant="ghost" size="icon" className="h-8 w-8"><RefreshCw className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsUp className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><ThumbsDown className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
+                <span className="text-xs">1,8s</span>
+            </div>
+        )}
+         {isUser && (
+            <div className="mt-2 flex items-center gap-2 text-gray-500">
+                <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><Copy className="size-4" /></Button>
+            </div>
+        )}
         {url && (
             <div className="mt-2">
                 <Button variant="outline" size="sm" asChild>
@@ -42,3 +58,4 @@ export function ChatMessage({ message }: { message: Message }) {
     </div>
   );
 }
+

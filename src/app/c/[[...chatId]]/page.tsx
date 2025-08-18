@@ -2,11 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Paperclip, Rocket, Send, User, Users, FileText, ChevronDown } from 'lucide-react';
+import { Bot, Paperclip, Rocket, Send, User, Users, FileText, ChevronDown, MoreHorizontal, Star, Upload, SquarePen, RefreshCw, Copy, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
@@ -18,21 +18,61 @@ const GrokIcon = () => (
     </svg>
 );
 
-
 const SoundWaveIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 10V14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M7 8V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M11 5V19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M15 8V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 10V14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 2C12 2 12 2 12 2C12 2 12 2 12 2Z" fill="black" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 6V18" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 9V15" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M15 9V15" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 11V13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M18 11V13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );
+
+
+const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
+    const formRef = React.useRef<HTMLFormElement>(null);
+
+    return (
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center px-4">
+             <div className="relative w-full bg-white rounded-2xl shadow-lg p-2 border border-gray-200">
+                <form ref={formRef} onSubmit={handleSendMessage} className="flex items-center">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground"><Paperclip className="size-5" /></Button>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground">
+                        <Rocket className="mr-2 size-4" />
+                        Automatique
+                        <ChevronDown className="ml-1 size-4" />
+                    </Button>
+                    <Textarea
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        placeholder="Comment Grok peut-il aider ?"
+                        className="bg-transparent border-none focus:ring-0 resize-none w-full text-lg text-black flex-1"
+                         onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              formRef.current?.requestSubmit();
+                          }
+                        }}
+                        rows={1}
+                    />
+                    <div className="flex items-center">
+                         <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-10 h-10" disabled={isLoading || !input.trim()}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 12C4 12 4 11.9997 4 11.9991C4 10.3804 4.50974 8.87311 5.43853 7.646C6.36732 6.41888 7.6669 5.54145 9.13593 5.14083C10.605 4.74021 12.1652 4.83983 13.5822 5.42168C15.0004 6.00414 16.2023 7.03533 17.0028 8.35881" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M20 12C20 12 20 12.0003 20 12.0009C20 13.6196 19.4903 15.1269 18.5615 16.354C17.6327 17.5811 16.3331 18.4586 14.8641 18.8592C13.395 19.2598 11.8348 19.1602 10.4178 18.5783C8.99963 17.9959 7.79772 16.9647 6.99721 15.6412" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
 
 export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
   const chatId = params.chatId?.[0];
   const router = useRouter();
-  const pathname = usePathname();
   
   const { toast } = useToast();
 
@@ -72,8 +112,6 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
     return conversations.find(c => c.id === activeConversationId) ?? null;
   }, [conversations, activeConversationId]);
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -191,7 +229,6 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
       setConversations(prev => prev.map(c => c.id === activeConversationId ? {...c, messages: c.messages.filter(m => m.id !== assistantPlaceholder.id)} : c));
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
     }
   };
   
@@ -199,7 +236,18 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
 
   if (hasMessages) {
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground">
+        <div className="flex flex-col h-screen bg-[#F9F9F9] text-foreground border-t-4 border-yellow-400">
+            <header className="p-4 flex justify-end items-center">
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
+                    <Button variant="ghost" size="icon"><Star className="size-5 text-gray-600" /></Button>
+                    <Button variant="ghost" size="icon"><MoreHorizontal className="size-5 text-gray-600" /></Button>
+                    <Button variant="outline" className="rounded-full border-gray-300">
+                        <Upload className="mr-2 size-4 text-gray-600" />
+                        Partager
+                    </Button>
+                </div>
+            </header>
             <main className="flex-1 overflow-y-auto p-6">
                 <div className="max-w-4xl mx-auto space-y-8">
                     {activeConversation.messages.map(message => (
@@ -207,29 +255,12 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
                     ))}
                 </div>
             </main>
-            <footer className="p-4 border-t bg-background">
-                <div className="max-w-4xl mx-auto">
-                    <form ref={formRef} onSubmit={handleSendMessage} className="relative">
-                        <Textarea
-                          ref={inputRef}
-                          value={input}
-                          onChange={e => setInput(e.target.value)}
-                          placeholder="Que voulez-vous savoir?"
-                          className="w-full bg-background border border-gray-300 rounded-2xl p-4 pr-20"
-                          onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  formRef.current?.requestSubmit();
-                              }
-                          }}
-                        />
-                         <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                             <Button type="submit" size="icon" className="bg-foreground hover:bg-foreground/90 rounded-full" disabled={isLoading || !input.trim()}>
-                                <Send className="size-5" />
-                            </Button>
-                        </div>
-                      </form>
-                </div>
+            <footer className="p-4 bg-[#F9F9F9] flex flex-col items-center">
+                 <Button variant="outline" className="rounded-full bg-white text-black mb-4">
+                    <Sparkles className="mr-2 size-4" />
+                    Réfléchir plus intensément
+                </Button>
+                <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
             </footer>
         </div>
     )
@@ -237,13 +268,7 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-        <header className="p-4 flex justify-end">
-            <Button variant="ghost" className="text-muted-foreground">
-                <Bot className="mr-2 size-4" />
-                Privé
-            </Button>
-        </header>
-        <main className="flex flex-1 flex-col items-center justify-center -mt-20">
+        <main className="flex flex-1 flex-col items-center justify-center">
             <div className="text-center mb-8">
                 <GrokIcon />
                 <h1 className="text-4xl font-bold mt-2">Grok</h1>
@@ -251,9 +276,8 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
             
             <div className="w-full max-w-2xl px-4">
                  <div className="relative bg-white rounded-2xl shadow-lg p-4">
-                    <form ref={formRef} onSubmit={handleSendMessage}>
+                    <form onSubmit={handleSendMessage}>
                         <Textarea
-                            ref={inputRef}
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             placeholder="Que voulez-vous savoir ?"
@@ -261,7 +285,7 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
                              onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
-                                  formRef.current?.requestSubmit();
+                                  (e.target as HTMLTextAreaElement).form?.requestSubmit();
                               }
                             }}
                         />
@@ -285,7 +309,7 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
 
                 <div className="flex items-center justify-center gap-2 mt-6">
                     <Button variant="outline" className="rounded-full bg-white text-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="mr-2" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w.org/2000/svg" width="16" height="16" fill="currentColor" className="mr-2" viewBox="0 0 16 16">
                             <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM12.5 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM1.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM10 12.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
                             <path d="M6 6.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5zm6.5 2.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5zm-6 2.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5z"/>
                         </svg>
@@ -306,3 +330,4 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
     </div>
   );
 }
+
