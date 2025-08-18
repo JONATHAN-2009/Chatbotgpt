@@ -66,14 +66,7 @@ const Sidebar = () => {
     )
 }
 
-const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: () => void, isLoading: boolean }) => {
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const lastMessageIsUser = activeConversation?.messages[activeConversation.messages.length - 1]?.role === 'user';
-
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages]);
-
+const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading, messagesEndRef }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: () => void, isLoading: boolean, messagesEndRef: React.RefObject<HTMLDivElement> }) => {
   return (
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto p-4">
@@ -111,6 +104,11 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   const [activeConversationId, setActiveConversationId] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const handleNewChat = React.useCallback(() => {
     const newId = nanoid();
@@ -155,6 +153,9 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     setConversations(conversations.map(c => c.id === activeConversationId ? updatedConversation : c));
     setInput('');
     setIsLoading(true);
+
+    // Scroll to bottom after user sends a message
+    setTimeout(scrollToBottom, 100);
     
     const assistantPlaceholder: Message = { role: 'assistant', content: '', id: nanoid() };
     setConversations(prev => prev.map(c => c.id === activeConversationId ? { ...c, messages: [...updatedMessages, assistantPlaceholder] } : c));
@@ -281,8 +282,11 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
           setInput={setInput}
           handleSendMessage={handleSendMessage}
           isLoading={isLoading}
+          messagesEndRef={messagesEndRef}
         />
       </div>
     </div>
   );
 }
+
+    
