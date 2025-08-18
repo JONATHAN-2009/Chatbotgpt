@@ -6,27 +6,25 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask } from 'lucide-react';
+import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Settings, Bot, Users, VenetianMask, MessageSquare, Compass, Code } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage } from '@/components/chat-message';
 import { nanoid } from 'nanoid';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const GrokLogo = () => (
-    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
+const GrokLogo = ({ large = false }: { large?: boolean }) => (
+    <svg width={large ? "60" : "24"} height={large ? "60" : "24"} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black">
       <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM16.6304 15.2065C16.4449 15.392 16.1884 15.4999 15.9234 15.4999C15.6583 15.4999 15.4018 15.392 15.2163 15.2065L12.4887 12.4846L9.77836 15.1957C9.59286 15.3812 9.33636 15.4891 9.07136 15.4891C8.80636 15.4891 8.54986 15.3812 8.36436 15.1957C7.99336 14.8247 7.99336 14.2247 8.36436 13.8537L11.0754 11.1427L8.36436 8.43164C7.99336 8.06064 7.99336 7.46064 8.36436 7.08964C8.73536 6.71864 9.33536 6.71864 9.70636 7.08964L12.4174 9.80064L15.2163 7.0015C15.5873 6.6305 16.1873 6.6305 16.5583 7.0015C16.9293 7.3725 16.9293 7.9725 16.5583 8.3435L13.7594 11.1427L16.6304 13.9395C17.0014 14.3105 17.0014 14.8355 16.6304 15.2065Z" fill="currentColor"/>
     </svg>
 );
-
 
 const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const MicIcon = () => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C10.8954 2 10 2.89543 10 4V10C10 11.1046 10.8954 12 12 12C13.1046 12 14 11.1046 14 10V4C14 2.89543 13.1046 2 12 2Z" fill="currentColor"/>
-        <path d="M5 10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10H17C17 12.7614 14.7614 15 12 15C9.23858 15 7 12.7614 7 10H5Z" fill="currentColor"/>
-        <path d="M12 17V21C12 21.5523 11.5523 22 11 22H13C13.5523 22 14 21.5523 14 21V17H12Z" fill="currentColor"/>
+        <path d="M12 14C13.1046 14 14 13.1046 14 12V6C14 4.89543 13.1046 4 12 4C10.8954 4 10 4.89543 10 6V12C10 13.1046 10.8954 14 12 14Z" fill="currentColor"/>
+        <path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12H5C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12H17Z" fill="currentColor"/>
       </svg>
     )
 
@@ -120,8 +118,8 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
         return (
             <main className="flex-1 flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center justify-center text-center">
-                    <GrokLogo />
-                    <h1 className="text-4xl font-bold mt-4">Grok</h1>
+                    <GrokLogo large />
+                    <h1 className="text-5xl font-bold mt-4">Grok</h1>
                     <div className="mt-12 w-full">
                         <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
                     </div>
@@ -154,7 +152,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   const { toast } = useToast();
 
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(chatId ?? null);
+  const [activeConversationId, setActiveConversationId] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [input, setInput] = React.useState('');
 
@@ -172,15 +170,15 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
 
   React.useEffect(() => {
     if (chatId) {
-        if (!conversations.some(c => c.id === chatId)) {
-             const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0,4)}`, messages: [] };
-             setConversations(prev => [...prev, newConversation]);
-        }
-        setActiveConversationId(chatId);
-    } else if (conversations.length === 0) {
-        handleNewChat();
+      if (!conversations.some(c => c.id === chatId)) {
+        const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0,4)}`, messages: [] };
+        setConversations(prev => [...prev, newConversation]);
+      }
+      setActiveConversationId(chatId);
+    } else if (!activeConversationId && conversations.length === 0) {
+      handleNewChat();
     }
-  }, [chatId, conversations, handleNewChat]);
+  }, [chatId, conversations, activeConversationId, handleNewChat]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -250,7 +248,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                         );
                     }
                 } catch (error) {
-                    console.error("Failed to parse chunk:", jsonStr, error);
+                    console.error("Failed to parse chunk:", jsonStr);
                 }
             }
         }
@@ -324,7 +322,6 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   
   const hasMessages = activeConversation && activeConversation.messages.length > 0;
 
-  // This will be the chat view, to be implemented when user provides the design
   if (!hasMessages) {
     return (
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
@@ -332,9 +329,12 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                 <Button variant="ghost" size="icon"><GrokLogo /></Button>
                 <Button variant="ghost" size="icon" className="bg-gray-200 rounded-lg"><Search className="size-5 text-black" /></Button>
                 <Button variant="ghost" size="icon"><SquarePen className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><MessageSquare className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><Compass className="size-5 text-gray-600" /></Button>
+                <Button variant="ghost" size="icon"><Code className="size-5 text-gray-600" /></Button>
+                <div className="flex-grow" />
                 <Button variant="ghost" size="icon"><History className="size-5 text-gray-600" /></Button>
-                <Button variant="ghost" size="icon"><Bot className="size-5 text-gray-600" /></Button>
-                <Button variant="ghost" size="icon"><Settings className="size-5 text-gray-600" /></Button>
+
             </aside>
             <div className="flex-1 flex flex-col">
                 <header className="p-4 flex justify-end items-center">
@@ -345,8 +345,8 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
                 </header>
                 <main className="flex-1 flex flex-col items-center justify-center">
                   <div className="flex flex-col items-center justify-center text-center">
-                      <GrokLogo />
-                      <h1 className="text-4xl font-bold mt-4">Grok</h1>
+                      <GrokLogo large />
+                      <h1 className="text-5xl font-bold mt-4">Grok</h1>
                       <div className="mt-12 w-full">
                           <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
                       </div>
