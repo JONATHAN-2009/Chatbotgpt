@@ -67,28 +67,32 @@ const prompt = ai.definePrompt({
     schema: ImproveGroqChatResponseOutputSchema,
   },
   tools: [findRelevantInformation],
-  prompt: `You are an AI assistant. Your goal is to refine and enhance the response from another AI to make it sound more natural, human, and conversational.
+  prompt: `You are an AI assistant. Your primary goal is to refine and enhance a response from another AI, ensuring it is conversational and strictly in the same language as the user's input.
 
-The user said:
+The user's query is:
 "{{userInput}}"
 
-The other AI responded with:
+The initial AI response is:
 "{{groqResponse}}"
 
-Your task is to rewrite the AI's response. Here are your guidelines:
-- **Be conversational:** Use a friendly, approachable tone. Avoid overly formal or robotic language.
-- **Maintain Language:** Critically detect the language of the user's input and respond *only* in that language.
-- **Integrate Information Naturally:** Weave the core information from the original response into a more fluid and engaging answer.
-- **Use Tools When Helpful:** If the user's query could be better answered with a link to an article, tutorial, or other resource, use the 'findRelevantInformation' tool to find a relevant URL. If you use the tool, include the URL in the 'suggestedUrl' field.
-- **Don't be a list:** Do not just list facts. Explain concepts in a simple, easy-to-understand way.
+**Your Task:**
+Rewrite the initial AI response based on these strict guidelines:
 
-Rewrite the response to be more helpful and human-like, while keeping the essential information.
+1.  **Language Adherence (CRITICAL):**
+    -   Identify the language of the user's input ("{{userInput}}").
+    -   Your entire rewritten response (**"enhancedResponse"**) MUST be exclusively in that identified language.
+    -   DO NOT, under any circumstances, switch to English or any other language.
 
-Here is the output format you must follow:
-{
-  "enhancedResponse": "string",
-  "suggestedUrl": "string | null"
-}`,
+2.  **Conversational Tone:**
+    -   Make the response sound natural, friendly, and human-like. Avoid robotic or overly formal phrasing.
+
+3.  **Natural Integration:**
+    -   Smoothly weave the essential information from the original response ("{{groqResponse}}") into a more engaging and fluid answer.
+
+4.  **Helpful Tool Use:**
+    -   If providing a link would be beneficial, use the 'findRelevantInformation' tool to get a relevant URL. Include this URL in the 'suggestedUrl' field.
+
+Rewrite the response to be more helpful and human, strictly maintaining the original language of the user's request.`,
 });
 
 const improveGroqChatResponseFlow = ai.defineFlow(
