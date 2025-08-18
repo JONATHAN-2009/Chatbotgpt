@@ -3,7 +3,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useParams } from 'next/navigation';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,9 +27,11 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-function ChatPageContent({ chatId }: { chatId?: string }) {
+function ChatPageContent() {
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
+  const chatId = Array.isArray(params.chatId) ? params.chatId[0] : params.chatId;
 
   const { toast } = useToast();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -67,6 +69,7 @@ function ChatPageContent({ chatId }: { chatId?: string }) {
   }, [chatId, conversations.length, handleNewChat]);
 
   const formRef = React.useRef<HTMLFormElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -178,6 +181,15 @@ function ChatPageContent({ chatId }: { chatId?: string }) {
     }
   };
 
+  const onSelectPrompt = (prompt: string) => {
+    setInput(prompt);
+    // Use a timeout to allow the input to update before submitting the form
+    setTimeout(() => {
+        inputRef.current?.focus();
+        formRef.current?.requestSubmit();
+    }, 0);
+  }
+
   return (
     <div className="flex h-[100svh]">
       <Sidebar className="w-full max-w-xs" collapsible="offcanvas">
@@ -236,10 +248,7 @@ function ChatPageContent({ chatId }: { chatId?: string }) {
                   ))}
                 </div>
               ) : (
-                <EmptyScreen onSelect={(prompt) => {
-                  setInput(prompt);
-                  setTimeout(() => document.getElementById('chat-form-submit')?.click(), 0);
-                }}/>
+                <EmptyScreen onSelect={onSelectPrompt}/>
               )}
             </div>
           </ScrollArea>
@@ -247,6 +256,7 @@ function ChatPageContent({ chatId }: { chatId?: string }) {
         <div className="p-4 border-t bg-background">
           <form ref={formRef} onSubmit={handleSendMessage} className="relative">
             <Textarea
+              ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Message GroqChat..."
@@ -269,12 +279,10 @@ function ChatPageContent({ chatId }: { chatId?: string }) {
 }
 
 
-export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
-  const chatId = params.chatId?.[0];
-
+export default function ChatPage() {
   return (
     <SidebarProvider>
-      <ChatPageContent chatId={chatId} />
+      <ChatPageContent />
     </SidebarProvider>
   );
 }
