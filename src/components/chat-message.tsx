@@ -10,9 +10,25 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback } from './ui/avatar';
 
 
-const GrokIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-6">
-        <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM16.63 15.207C16.444 15.392 16.188 15.5 15.923 15.5C15.658 15.5 15.402 15.392 15.216 15.207L12.489 12.485L9.778 15.196C9.592 15.381 9.336 15.489 9.071 15.489C8.806 15.489 8.55 15.381 8.364 15.196C7.993 14.825 7.993 14.225 8.364 13.854L11.075 11.143L8.364 8.432C7.993 8.061 7.993 7.461 8.364 7.09C8.735 6.719 9.335 6.719 9.706 7.09L12.417 9.801L15.216 7.002C15.587 6.631 16.187 6.631 16.558 7.002C16.929 7.373 16.929 7.973 16.558 8.344L13.759 11.143L16.63 13.94C17.001 14.311 17.001 14.836 16.63 15.207Z" fill="currentColor"/>
+const AiIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-6"
+    >
+      <path
+        d="M8 12H8.01M12 12H12.01M16 12H16.01M21.364 10.182C21.7542 10.9334 22 11.7543 22 12.6061C22 16.9912 17.9653 20.6061 12.8788 20.6061C12.592 20.6061 12.3082 20.5912 12.0274 20.562C6.98285 20.218 3 16.0157 3 11.6364C3 7.82843 5.92893 4.63636 9.5 4.63636C10.1919 4.63636 10.864 4.72322 11.5 4.88182"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M17.5 1.5C19.433 1.5 21 3.067 21 5C21 6.933 19.433 8.5 17.5 8.5C15.567 8.5 14 6.933 14 5C14 3.067 15.567 1.5 17.5 1.5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
     </svg>
 );
 
@@ -36,8 +52,8 @@ export function ChatMessage({ message }: { message: Message }) {
 
   return (
      <div className="flex gap-3">
-        <Avatar className="h-8 w-8 bg-black flex items-center justify-center">
-            <GrokIcon />
+        <Avatar className="h-8 w-8 bg-black flex items-center justify-center text-white">
+            <AiIcon />
         </Avatar>
         <div className='flex flex-col items-start gap-2'>
             <div className="prose prose-sm max-w-none text-black">
@@ -66,3 +82,4 @@ export function ChatMessage({ message }: { message: Message }) {
     </div>
   );
 }
+

@@ -11,9 +11,25 @@ import { nanoid } from 'nanoid';
 import { ChatMessage } from '@/components/chat-message';
 import { ChatInput, ChatInputSubmit, ChatInputTextArea } from "@/components/ui/chat-input";
 
-const GrokLogo = ({ className }: { className?: string }) => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM16.6304 15.2065C16.4449 15.392 16.1884 15.4999 15.9234 15.4999C15.6583 15.4999 15.4018 15.392 15.2163 15.2065L12.4887 12.4846L9.77836 15.1957C9.59286 15.3812 9.33636 15.4891 9.07136 15.4891C8.80636 15.4891 8.54986 15.3812 8.36436 15.1957C7.99336 14.8247 7.99336 14.2247 8.36436 13.8537L11.0754 11.1427L8.36436 8.43164C7.99336 8.06064 7.99336 7.46064 8.36436 7.08964C8.73536 6.71864 9.33536 6.71864 9.70636 7.08964L12.4174 9.80064L15.2163 7.0015C15.5873 6.6305 16.1873 6.6305 16.5583 7.0015C16.9293 7.3725 16.9293 7.9725 16.5583 8.3435L13.7594 11.1427L16.6304 13.9395C17.0014 14.3105 17.0014 14.8355 16.6304 15.2065Z" fill="currentColor"/>
+const NewLogo = ({ className }: { className?: string }) => (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M8 12H8.01M12 12H12.01M16 12H16.01M21.364 10.182C21.7542 10.9334 22 11.7543 22 12.6061C22 16.9912 17.9653 20.6061 12.8788 20.6061C12.592 20.6061 12.3082 20.5912 12.0274 20.562C6.98285 20.218 3 16.0157 3 11.6364C3 7.82843 5.92893 4.63636 9.5 4.63636C10.1919 4.63636 10.864 4.72322 11.5 4.88182"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M17.5 1.5C19.433 1.5 21 3.067 21 5C21 6.933 19.433 8.5 17.5 8.5C15.567 8.5 14 6.933 14 5C14 3.067 15.567 1.5 17.5 1.5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
     </svg>
 );
 
@@ -213,23 +229,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
             : c
         )
       );
-
-      if (isFirstMessage) {
-        const summarizeRes = await fetch('/api/chat/summarize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chatHistory: `User: ${input}\nAssistant: ${fullResponse}` }),
-        });
-        if(summarizeRes.ok) {
-            const summaryData = await summarizeRes.json();
-            setConversations(prev =>
-                prev.map(c => c.id === activeConversationId ? { ...c, title: summaryData.summary } : c)
-            );
-        } else {
-            console.error("Failed to summarize chat");
-        }
-      }
-
+      
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -251,7 +251,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
             <div className="flex-1 flex flex-col">
                 <main className="flex-1 flex flex-col items-center justify-center p-4">
                     <div className="flex-grow flex flex-col items-center justify-center text-center gap-4">
-                        <GrokLogo className="w-12 h-12 text-black"/>
+                        <NewLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
                     <div className="w-full max-w-3xl p-4">
@@ -291,3 +291,4 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
     
 
     
+
