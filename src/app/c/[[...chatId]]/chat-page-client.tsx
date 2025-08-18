@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { Paperclip, Rocket, ChevronDown, Search, SquarePen, History, Compass, Upload, Star, MoreHorizontal, X } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
+import { Search, SquarePen, History, Compass, Star, MoreHorizontal, X, Send } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { ChatMessage } from '@/components/chat-message';
+import { ChatInput, ChatInputSubmit, ChatInputTextArea } from "@/components/ui/chat-input";
 
 const GrokLogo = ({ className }: { className?: string }) => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -17,52 +17,6 @@ const GrokLogo = ({ className }: { className?: string }) => (
     </svg>
 );
 
-
-const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: { input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
-    const formRef = React.useRef<HTMLFormElement>(null);
-
-    const MicIcon = () => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 14C13.1046 14 14 13.1046 14 12V6C14 4.89543 13.1046 4 12 4C10.8954 4 10 4.89543 10 6V12C10 13.1046 10.8954 14 12 14Z" fill="currentColor"/>
-        <path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12H5C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12H17Z" fill="currentColor"/>
-      </svg>
-    )
-
-    return (
-        <div className="w-full max-w-2xl mx-auto flex flex-col items-center px-4 mb-4">
-             <div className="relative w-full bg-white rounded-xl shadow-lg p-1 border border-gray-200">
-                <form ref={formRef} onSubmit={handleSendMessage}>
-                    <div className="flex items-center">
-                         <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground w-8 h-8"><Paperclip className="size-4" /></Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground h-8">
-                                <Rocket className="mr-1 size-4" />
-                                Automatique
-                                <ChevronDown className="ml-1 size-4" />
-                            </Button>
-                        </div>
-                        <Textarea
-                            value={input}
-                            onChange={e => setInput(e.target.value)}
-                            placeholder="Comment Grok peut-il aider ?"
-                            className="bg-transparent border-none focus:ring-0 resize-none w-full text-sm text-black p-2 mx-1 min-h-[40px]"
-                             onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  formRef.current?.requestSubmit();
-                              }
-                            }}
-                            rows={1}
-                        />
-                        <Button type="submit" size="icon" className="bg-black hover:bg-black/80 rounded-full w-8 h-8 flex-shrink-0" disabled={isLoading || !input.trim()}>
-                          <MicIcon />
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
 
 const Sidebar = () => {
     const GrokIconSidebar = () => (
@@ -98,14 +52,13 @@ const Sidebar = () => {
             <div className="flex-grow" />
             <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-xs">C</Button>
             <Button variant="ghost" size="icon" className="text-gray-400 h-8 w-8">
-                <ChevronDown className="size-4 rotate-90" />
-                <ChevronDown className="size-4 rotate-90 -ml-2" />
+                <Send className="size-4 rotate-90" />
             </Button>
         </aside>
     )
 }
 
-const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, isLoading: boolean }) => {
+const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLoading }: { activeConversation: Conversation | null, input: string, setInput: (val: string) => void, handleSendMessage: () => void, isLoading: boolean }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -123,7 +76,18 @@ const ChatArea = ({ activeConversation, input, setInput, handleSendMessage, isLo
             </div>
         </main>
         <footer className="p-4 bg-gray-50/80 backdrop-blur-md">
-          <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+            <div className="w-full max-w-2xl mx-auto">
+                <ChatInput
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onSubmit={handleSendMessage}
+                    loading={isLoading}
+                    onStop={() => setIsLoading(false)}
+                >
+                    <ChatInputTextArea placeholder="Comment Grok peut-il aider ?" />
+                    <ChatInputSubmit />
+                </ChatInput>
+            </div>
         </footer>
       </div>
   );
@@ -166,8 +130,7 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   }, [conversations, activeConversationId]);
 
 
-  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSendMessage = async () => {
     if (!input.trim() || !activeConversationId) return;
 
     const userInput: Message = { role: 'user', content: input, id: nanoid() };
@@ -314,15 +277,22 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
         <div className="flex h-screen bg-[#F9F9F9] text-foreground">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                <main className="flex-1 flex flex-col">
-                    <div className="flex-1 flex flex-col items-center justify-center text-center gap-4">
-                        <Button variant="ghost" size="icon" className="rounded-full bg-black text-white h-12 w-12 hover:bg-black/80">
-                            <X className="size-6"/>
-                        </Button>
+                <main className="flex-1 flex flex-col items-center justify-center text-center">
+                    <div className="flex flex-col items-center justify-center text-center gap-4">
+                        <GrokLogo className="w-12 h-12 text-black"/>
                         <h1 className="text-2xl font-bold">Comment puis-je vous aider aujourd'hui ?</h1>
                     </div>
-                    <div className="w-full mt-auto">
-                        <ChatInput input={input} setInput={setInput} handleSendMessage={handleSendMessage} isLoading={isLoading} />
+                    <div className="w-full max-w-2xl mt-auto p-4">
+                      <ChatInput
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onSubmit={handleSendMessage}
+                          loading={isLoading}
+                          onStop={() => setIsLoading(false)}
+                      >
+                          <ChatInputTextArea placeholder="Comment Grok peut-il aider ?" />
+                          <ChatInputSubmit />
+                      </ChatInput>
                     </div>
                 </main>
             </div>
@@ -340,10 +310,6 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
             <Button variant="ghost" size="icon" className="h-8 w-8"><SquarePen className="size-4" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><Star className="size-4" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="size-4" /></Button>
-            <Button variant="outline" size="sm" className="h-8">
-                <Upload className="mr-2 size-4" />
-                Partager
-            </Button>
           </div>
         </header>
         <ChatArea

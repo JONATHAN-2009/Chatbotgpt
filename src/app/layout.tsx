@@ -1,6 +1,8 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster as OldToaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+
 
 export const metadata: Metadata = {
   title: 'ChatGPT',
@@ -21,7 +23,8 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         {children}
-        <Toaster />
+        <OldToaster />
+        <SonnerToaster />
       </body>
     </html>
   );
