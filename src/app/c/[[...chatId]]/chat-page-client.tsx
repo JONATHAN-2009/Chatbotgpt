@@ -93,20 +93,16 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
   }, [router]);
 
   React.useEffect(() => {
-    if (chatId && !conversations.some(c => c.id === chatId)) {
-        if (chatId === 'new') {
-            handleNewChat();
-        } else {
+    if (chatId) {
+        if (!conversations.some(c => c.id === chatId)) {
             const newConversation: Conversation = { id: chatId, title: `Chat ${chatId.substring(0, 4)}`, messages: [] };
             setConversations(prev => [...prev, newConversation]);
-            setActiveConversationId(chatId);
         }
-    } else if (!chatId && conversations.length === 0) {
+        setActiveConversationId(chatId);
+    } else if (!activeConversationId && conversations.length === 0) {
         handleNewChat();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatId]);
-
+  }, [chatId, conversations, activeConversationId, handleNewChat]);
   
   const activeConversation = React.useMemo(() => {
     return conversations.find(c => c.id === activeConversationId) ?? null;
@@ -148,13 +144,15 @@ export function ChatPageClient({ chatId }: { chatId?: string }) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
         for (const line of lines) {
             if (line.startsWith('data: ')) {
                 const jsonStr = line.substring(6);
