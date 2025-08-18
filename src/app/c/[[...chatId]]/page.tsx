@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -26,7 +27,7 @@ import { ChatMessage } from '@/components/chat-message';
 import { EmptyScreen } from '@/components/empty-screen';
 import { nanoid } from 'nanoid';
 
-export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+function ChatPageContent({ params }: { params: { chatId?: string[] } }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -170,94 +171,101 @@ export default function ChatPage({ params }: { params: { chatId?: string[] } }) 
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex h-[100svh]">
-        <Sidebar className="w-full max-w-xs" collapsible="offcanvas">
-          <SidebarHeader>
-            <div className="flex items-center gap-2">
-                <Bot className="size-6 text-primary" />
-                <h1 className="text-lg font-semibold">GroqChat</h1>
-            </div>
-          </SidebarHeader>
-          <SidebarContent className="p-0">
-            <div className='p-2'>
-              <Button onClick={handleNewChat} className="w-full justify-start" variant="ghost">
-                <Plus className="mr-2" size={16} /> New Chat
-              </Button>
-            </div>
-            <SidebarMenu className="flex-1 p-2">
-                {conversations.map(convo => (
-                    <SidebarMenuItem key={convo.id}>
-                        <SidebarMenuButton 
-                            onClick={() => {
-                                setActiveConversationId(convo.id);
-                                router.push(`/c/${convo.id}`);
-                            }}
-                            isActive={pathname === `/c/${convo.id}`}
-                            className="w-full justify-start truncate"
-                        >
-                            {convo.title}
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <div className="flex items-center gap-3 p-4">
-                <div className='p-2 rounded-full bg-muted'>
-                    <User className="size-6" />
-                </div>
-                <span>User</span>
-            </div>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset className="flex flex-col">
-          <header className="flex items-center justify-between p-2 md:p-4 border-b">
-            <h2 className="text-lg font-semibold truncate">{activeConversation?.title || 'Chat'}</h2>
-            <div className="md:hidden">
-                <SidebarTrigger />
-            </div>
-          </header>
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="p-4">
-                {activeConversation && activeConversation.messages.length > 0 ? (
-                  <div className="space-y-4">
-                    {activeConversation.messages.map(message => (
-                      <ChatMessage key={message.id} message={message} />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyScreen onSelect={(prompt) => {
-                    setInput(prompt);
-                    // a bit of a hack to submit form
-                    setTimeout(() => document.getElementById('chat-form-submit')?.click(), 0);
-                  }}/>
-                )}
+    <div className="flex h-[100svh]">
+      <Sidebar className="w-full max-w-xs" collapsible="offcanvas">
+        <SidebarHeader>
+          <div className="flex items-center gap-2">
+              <Bot className="size-6 text-primary" />
+              <h1 className="text-lg font-semibold">GroqChat</h1>
+          </div>
+        </SidebarHeader>
+        <SidebarContent className="p-0">
+          <div className='p-2'>
+            <Button onClick={handleNewChat} className="w-full justify-start" variant="ghost">
+              <Plus className="mr-2" size={16} /> New Chat
+            </Button>
+          </div>
+          <SidebarMenu className="flex-1 p-2">
+              {conversations.map(convo => (
+                  <SidebarMenuItem key={convo.id}>
+                      <SidebarMenuButton 
+                          onClick={() => {
+                              setActiveConversationId(convo.id);
+                              router.push(`/c/${convo.id}`);
+                          }}
+                          isActive={pathname === `/c/${convo.id}`}
+                          className="w-full justify-start truncate"
+                      >
+                          {convo.title}
+                      </SidebarMenuButton>
+                  </SidebarMenuItem>
+              ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="flex items-center gap-3 p-4">
+              <div className='p-2 rounded-full bg-muted'>
+                  <User className="size-6" />
               </div>
-            </ScrollArea>
+              <span>User</span>
           </div>
-          <div className="p-4 border-t bg-background">
-            <form onSubmit={handleSendMessage} className="relative">
-              <Textarea
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                placeholder="Message GroqChat..."
-                className="pr-16 min-h-[60px]"
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage(e as any);
-                    }
-                }}
-              />
-              <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={isLoading || !input.trim()} id="chat-form-submit">
-                <Send className="size-5" />
-              </Button>
-            </form>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset className="flex flex-col">
+        <header className="flex items-center justify-between p-2 md:p-4 border-b">
+          <h2 className="text-lg font-semibold truncate">{activeConversation?.title || 'Chat'}</h2>
+          <div className="md:hidden">
+              <SidebarTrigger />
           </div>
-        </SidebarInset>
-      </div>
+        </header>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              {activeConversation && activeConversation.messages.length > 0 ? (
+                <div className="space-y-4">
+                  {activeConversation.messages.map(message => (
+                    <ChatMessage key={message.id} message={message} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyScreen onSelect={(prompt) => {
+                  setInput(prompt);
+                  // a bit of a hack to submit form
+                  setTimeout(() => document.getElementById('chat-form-submit')?.click(), 0);
+                }}/>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+        <div className="p-4 border-t bg-background">
+          <form onSubmit={handleSendMessage} className="relative">
+            <Textarea
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              placeholder="Message GroqChat..."
+              className="pr-16 min-h-[60px]"
+              onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e as any);
+                  }
+              }}
+            />
+            <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={isLoading || !input.trim()} id="chat-form-submit">
+              <Send className="size-5" />
+            </Button>
+          </form>
+        </div>
+      </SidebarInset>
+    </div>
+  );
+}
+
+
+export default function ChatPage({ params }: { params: { chatId?: string[] } }) {
+  return (
+    <SidebarProvider>
+      <ChatPageContent params={params} />
     </SidebarProvider>
   );
 }

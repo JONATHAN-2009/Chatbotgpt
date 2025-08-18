@@ -17,10 +17,10 @@ export async function POST(req: Request) {
     }
 
     const stream = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'compound-beta',
       messages,
       stream: true,
-      temperature: 0.7,
+      temperature: 1,
       max_tokens: 1024,
       top_p: 1,
     });
